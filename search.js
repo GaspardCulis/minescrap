@@ -122,7 +122,7 @@ function storeServer(IP, query, callback=(response)=>{}) {
             "lastTimeOnline":timestamp
         }
         database.servers[IP] = newElement;
-        console.log(IP+' in '+query.version.name+' new server stored')
+        console.log(IP+' in '+query.version.name+' new server stored with '+players.length.toString()+' players online');
     }
     Utils.storeDatabase(database);
     callback(response);
