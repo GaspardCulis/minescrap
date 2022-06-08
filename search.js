@@ -45,8 +45,9 @@ async function updateServers() {
     console.log('Splited servers: '+splitedServers.length);
     const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
     progressBar.start(database.servers.length, 0);
+    let i = 0;
     for (let servers of splitedServers) {
-        servers.forEach(server => {
+        for (let server of servers) {
             newFind(server.IP,(response, err)=>{
                 if (err) {
                     offline += 1;
@@ -56,7 +57,9 @@ async function updateServers() {
                 }
                 progressBar.update(online+offline);
             }, 25565, false);
-        })
+        }
+        i += 1;
+        console.log('Loaded batch '+i+' of '+splitedServers.length);
     }
     while(active_queries !=0) {
         await Utils.sleep(1000);
