@@ -52,8 +52,8 @@ async function updateServers() {
                     offline += 1;
                 } else {
                     online += 1;
+                    new_players += response.new_players;
                 }
-                new_players += response.new_players;
                 progressBar.update(online+offline);
             }, 25565, false);
         })
@@ -63,7 +63,7 @@ async function updateServers() {
         console.log('Waiting for queries to finish... ('+active_queries+')');
     }
     progressBar.stop();
-    console.log('Updated '+servers.length.toString()+' servers. \n\t├ Online: '+online.toString()+' \n\t├ Offline: '+offline.toString()+' \n\t└ New players: '+new_players.toString());
+    console.log('Updated '+database.servers.length.toString()+' servers. \n\t├ Online: '+online.toString()+' \n\t├ Offline: '+offline.toString()+' \n\t└ New players: '+new_players.toString());
 }
 
 function searchServers() {
@@ -140,5 +140,5 @@ for (let i=0; i<MAX_QUERIES; i++) {
 
 
 
-//updateServers()
-searchServers()
+updateServers()
+//searchServers()
