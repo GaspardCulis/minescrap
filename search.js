@@ -66,6 +66,7 @@ async function updateServers() {
     console.log('Updated '+database.servers.length.toString()+' servers. \n\t├ Online: '+online.toString()+' \n\t├ Offline: '+offline.toString()+' \n\t└ New players: '+new_players.toString());
 }
 
+exports.searchServers = searchServers;
 function searchServers() {
     const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
     console.log('Loading workers...');
@@ -196,4 +197,4 @@ for (let server in database.servers) {
     rapeServer(server);
 }
 */
-Utils.getDatabaseInfo();
+//Utils.getDatabaseInfo();

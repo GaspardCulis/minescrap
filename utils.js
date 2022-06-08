@@ -45,8 +45,8 @@ exports.getPlayersNames = getPlayersNames;
 function getPlayersNames() {
     let database = getDatabase();
     let out = [];
-    for (let server of database.servers) {
-        for (let player of server.players) {
+    for (let k in database.servers) {
+        for (let player of database.servers[k].players) {
             out.push(player.name);
         }
     }
@@ -65,6 +65,21 @@ function getDatabaseInfo() {
     }
     console.log(`Found ${out.servers} servers with ${out.players} players`);
     return out;
+}
+
+exports.getPlayerInfo = getPlayerInfo;
+function getPlayerInfo(name) {
+    let database = getDatabase();
+    for (let k in database.servers) {
+        for (let player of database.servers[k].players) {
+            if(player.name==name) {
+                console.log(`Found player ${name} on server ${k}`);
+                player.lastTimeOnline = new Date(player.lastTimeOnline);
+                console.log(player);
+            }
+        }
+        
+    }
 }
 
 exports.sleep = sleep;
