@@ -9,6 +9,7 @@
   "author": "MOI",
   "license": "ISC",
   "dependencies": {
+    "cli-progress": "^3.11.1",
     "mc-ping-updated": "^0.1.1"
   }
 }

@@ -1,5 +1,6 @@
 const Utils = require('./utils');
 const mcping = require('mc-ping-updated');
+const cliProgress = require('cli-progress');
 fs = require('fs');
 
 
@@ -14,7 +15,7 @@ function newFind(IP, callback=(response, err)=>{}, PORT=25565, auto_restart=true
             callback(null, err);
         } else {
                 // Success!
-            console.log(IP+' in '+res.version.name+' server found');
+            if (auto_restart) console.log(IP+' in '+res.version.name+' server found');
             storeServer(IP, res);
             callback(res, null);
         }
@@ -34,6 +35,8 @@ async function updateServers() {
     let index = 0;
     let online = 0;
     let offline = 0;
+    const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+    progressBar.start(database.servers.length, 0);
     console.log('Spliting servers in chunks of '+MAX_QUERIES);
     do {
         let old_index = index;
@@ -49,11 +52,13 @@ async function updateServers() {
                 } else {
                     online += 1;
                 }
+                progressBar.update(online+offline);
             }, 25565, false);
         })
         while(active_queries !=0) {
             await Utils.sleep(100);
         }
+        progressBar.stop();
         console.log('Updated '+servers.length.toString()+' servers. \n\t├ Online: '+online.toString()+' \n\t└ Offline: '+offline.toString());
     }
 }
