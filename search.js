@@ -160,7 +160,6 @@ function rapeServer(IP, PORT=25565) {
         return
     }
     bot.on('login', ()=>{
-        console.log('Logged in');
         response.online_mode = false;
         response.whitelisted = false;
         bot.chat('owned');
@@ -169,7 +168,6 @@ function rapeServer(IP, PORT=25565) {
         callback(response);
     });
     bot.on('kicked', (reason)=>{
-        console.log('RapeBot kicked: '+reason);
         if (JSON.parse(reason).translate!=undefined) {
             response.online_mode = true;
         } else if (JSON.parse(reason).text!=undefined) {
@@ -190,4 +188,10 @@ for (let i=0; i<MAX_QUERIES; i++) {
 
 //updateServers()
 //searchServers();
-rapeServer('147.135.31.68');
+/*
+let database = Utils.getDatabase();
+for (let server in database.servers) {
+    rapeServer(server);
+}
+*/
+Utils.getDatabaseInfo();

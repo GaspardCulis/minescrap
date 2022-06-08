@@ -53,6 +53,20 @@ function getPlayersNames() {
     return out;
 }
 
+exports.getDatabaseInfo = getDatabaseInfo;
+function getDatabaseInfo() {
+    let database = getDatabase();
+    let out = {
+        servers: Object.keys(database.servers).length,
+        players: 0,
+    }
+    for (let k in database.servers) {
+        out.players += database.servers[k].players.length;
+    }
+    console.log(`Found ${out.servers} servers with ${out.players} players`);
+    return out;
+}
+
 exports.sleep = sleep;
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
