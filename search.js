@@ -1,7 +1,7 @@
 const Utils = require('./utils');
 const mcping = require('mc-ping-updated');
 const cliProgress = require('cli-progress');
-const mineflayer = require('mineflayer');
+//const mineflayer = require('mineflayer');
 const fs = require('fs');
 
 var active_queries = 0;
@@ -128,7 +128,7 @@ function storeServer(IP, query, callback=(response)=>{}) {
     Utils.storeDatabase(database);
     callback(response);
 }
-
+/*
 function rapeServer(IP, PORT=25565) {
     callback = (response)=>{
         let database = Utils.getDatabase();
@@ -179,6 +179,8 @@ function rapeServer(IP, PORT=25565) {
     });
 
 }
+*/
+
 /*
 for (let i=0; i<MAX_QUERIES; i++) {
     newFind(Utils.generateIp())
