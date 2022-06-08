@@ -63,7 +63,7 @@ async function updateServers() {
         console.log('Waiting for queries to finish... ('+active_queries+')');
     }
     progressBar.stop();
-    console.log('Updated '+servers.length.toString()+' servers. \n\t├ Online: '+online.toString()+' \n\t└ Offline: '+offline.toString());
+    console.log('Updated '+servers.length.toString()+' servers. \n\t├ Online: '+online.toString()+' \n\t├ Offline: '+offline.toString()+' \n\t└ New players: '+new_players.toString());
 }
 
 function searchServers() {
