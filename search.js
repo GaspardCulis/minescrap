@@ -55,12 +55,24 @@ async function updateServers() {
                 progressBar.update(online+offline);
             }, 25565, false);
         })
-        while(active_queries !=0) {
-            await Utils.sleep(100);
-        }
-        progressBar.stop();
-        console.log('Updated '+servers.length.toString()+' servers. \n\t├ Online: '+online.toString()+' \n\t└ Offline: '+offline.toString());
     }
+    while(active_queries !=0) {
+        await Utils.sleep(1000);
+        console.log('Waiting for queries to finish... ('+active_queries+')');
+    }
+    progressBar.stop();
+    console.log('Updated '+servers.length.toString()+' servers. \n\t├ Online: '+online.toString()+' \n\t└ Offline: '+offline.toString());
+}
+
+function searchServers() {
+    const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+    console.log('Loading workers...');
+    progressBar.start(MAX_QUERIES, 0);
+    for (let i=0; i<MAX_QUERIES; i++) {
+        newFind(Utils.generateIp());
+        progressBar.update(i+1);
+    }
+    progressBar.stop();
 }
 
 function storeServer(IP, query) {
@@ -121,4 +133,5 @@ for (let i=0; i<MAX_QUERIES; i++) {
 
 
 
-updateServers()
+//updateServers()
+searchServers()
