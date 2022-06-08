@@ -23,6 +23,7 @@ function newFind(IP, callback=(response, err)=>{}, PORT=25565, auto_restart=true
         active_queries -= 1;
         if (active_queries < MAX_QUERIES & auto_restart) {
             newFind(Utils.generateIp());
+            console.log('Restarting query...');
         }
 
     }, 1000)
@@ -45,7 +46,6 @@ async function updateServers() {
     console.log('Splited servers: '+splitedServers.length);
     const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
     progressBar.start(database.servers.length, 0);
-    let i = 0;
     for (let servers of splitedServers) {
         for (let server of servers) {
             newFind(server.IP,(response, err)=>{
@@ -58,8 +58,6 @@ async function updateServers() {
                 progressBar.update(online+offline);
             }, 25565, false);
         }
-        i += 1;
-        console.log('Loaded batch '+i+' of '+splitedServers.length);
     }
     while(active_queries !=0) {
         await Utils.sleep(1000);
