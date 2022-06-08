@@ -15,8 +15,9 @@ function newFind(IP, callback=(response, err)=>{}, PORT=25565, auto_restart=true
             callback(null, err);
         } else {
                 // Success!
-            storeServer(IP, res);
-            callback(res, null);
+            storeServer(IP, res, (response)=>{
+                callback(response, null); 
+            });
         }
 
         active_queries -= 1;
@@ -34,6 +35,7 @@ async function updateServers() {
     let index = 0;
     let online = 0;
     let offline = 0;
+    let new_players = 0;
     console.log('Spliting servers in chunks of '+MAX_QUERIES);
     do {
         let old_index = index;
@@ -51,6 +53,7 @@ async function updateServers() {
                 } else {
                     online += 1;
                 }
+                new_players += response.new_players;
                 progressBar.update(online+offline);
             }, 25565, false);
         })
@@ -74,9 +77,12 @@ function searchServers() {
     progressBar.stop();
 }
 
-function storeServer(IP, query) {
+function storeServer(IP, query, callback=(response)=>{}) {
     let timestamp = Date.now();
     let database = Utils.getDatabase();
+    let response = {
+        new_players: 0
+    };
     Utils.findServer(IP, (out, index) => {
         if (out) {
             // Updating server in DB
@@ -96,6 +102,7 @@ function storeServer(IP, query) {
                         let newPlayer = player;
                         newPlayer.lastTimeOnline = timestamp;
                         out.players.push(newPlayer);
+                        response.new_players += 1;
                     }
                 }
             }
@@ -122,6 +129,7 @@ function storeServer(IP, query) {
             console.log(IP+' in '+query.version.name+' new server stored')
         }
         Utils.storeDatabase(database);
+        callback(response);
     })
 }
 
