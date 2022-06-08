@@ -1,7 +1,8 @@
 const Utils = require('./utils');
 const mcping = require('mc-ping-updated');
 const cliProgress = require('cli-progress');
-fs = require('fs');
+const mineflayer = require('mineflayer');
+const fs = require('fs');
 
 var active_queries = 0;
 const MAX_QUERIES = 10000;
@@ -128,6 +129,58 @@ function storeServer(IP, query, callback=(response)=>{}) {
     callback(response);
 }
 
+function rapeServer(IP, PORT=25565) {
+    callback = (response)=>{
+        let database = Utils.getDatabase();
+        let server = database.servers[IP];
+        server.rapeBot = response;
+        console.log(response);
+        Utils.storeDatabase(database);
+    }
+
+    let response = {
+        online: true,
+        whitelisted: null,
+        online_mode: null,
+    }
+    let bot;
+    try {
+        bot = mineflayer.createBot({
+            host: IP,
+            port: PORT,
+            username: 'RapeBot',
+            logErrors: false,
+            hideErrors: true,
+            checkTimeoutInterval : 5000,
+        })
+    } catch {}
+    if (!bot) {
+        response.online = false;
+        callback(response);
+        return
+    }
+    bot.on('login', ()=>{
+        console.log('Logged in');
+        response.online_mode = false;
+        response.whitelisted = false;
+        bot.chat('owned');
+        // Disconnect and callback
+        bot.end();
+        callback(response);
+    });
+    bot.on('kicked', (reason)=>{
+        console.log('RapeBot kicked: '+reason);
+        if (JSON.parse(reason).translate!=undefined) {
+            response.online_mode = true;
+        } else if (JSON.parse(reason).text!=undefined) {
+            response.whitelisted = true;
+        }
+        // Disconnect and callback
+        bot.end();
+        callback(response);
+    });
+
+}
 /*
 for (let i=0; i<MAX_QUERIES; i++) {
     newFind(Utils.generateIp())
@@ -136,4 +189,5 @@ for (let i=0; i<MAX_QUERIES; i++) {
 
 
 //updateServers()
-searchServers()
+//searchServers();
+rapeServer('147.135.31.68');
