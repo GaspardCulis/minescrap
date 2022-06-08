@@ -1,0 +1,14 @@
+{
+  "name": "mcservfinder",
+  "version": "1.0.0",
+  "description": "Finds server by bruteforce",
+  "main": "search.js",
+  "scripts": {
+    "test": "node search.js"
+  },
+  "author": "MOI",
+  "license": "ISC",
+  "dependencies": {
+    "mc-ping-updated": "^0.1.1"
+  }
+}
