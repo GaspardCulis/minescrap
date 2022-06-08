@@ -35,8 +35,6 @@ async function updateServers() {
     let index = 0;
     let online = 0;
     let offline = 0;
-    const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
-    progressBar.start(database.servers.length, 0);
     console.log('Spliting servers in chunks of '+MAX_QUERIES);
     do {
         let old_index = index;
@@ -44,6 +42,8 @@ async function updateServers() {
         splitedServers.push( database.servers.slice(old_index, index) )
     } while(index!=database.servers.length);
     console.log('Splited servers: '+splitedServers.length);
+    const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+    progressBar.start(database.servers.length, 0);
     for (let servers of splitedServers) {
         servers.forEach(server => {
             newFind(server.IP,(response, err)=>{
