@@ -1,11 +1,53 @@
 {
 	"servers": {
-		"jaajmc.mcserv.org":{
-			"players":[
-				{
-					"name":"zozo_dejante"
-				}
-			]
-		}
+			"104.238.205.76": {
+					"description": "",
+					"version": "Paper 1.18.2",
+					"players": [],
+					"discovered": 1654700543353,
+					"lastTimeOnline": 1654700543353
+			},
+			"1.14.109.215": {
+					"description": "大鸟转转酒吧",
+					"version": "1.18.2",
+					"players": [],
+					"discovered": 1654700545293,
+					"lastTimeOnline": 1654700545293
+			},
+			"118.27.109.216": {
+					"description": "A Minecraft Server",
+					"version": "1.18.2",
+					"players": [],
+					"discovered": 1654700547116,
+					"lastTimeOnline": 1654700547116
+			},
+			"68.147.204.41": {
+					"description": "Yes please.",
+					"version": "1.19",
+					"players": [],
+					"discovered": 1654700548887,
+					"lastTimeOnline": 1654700548887
+			},
+			"204.152.220.119": {
+					"description": "A Minecraft Server",
+					"version": "1.18.2",
+					"players": [],
+					"discovered": 1654700549024,
+					"lastTimeOnline": 1654700549024
+			},
+			"147.135.31.68": {
+					"description": "bvzgkJ",
+					"version": "Paper 1.18",
+					"players": [],
+					"discovered": 1654700551674,
+					"lastTimeOnline": 1654700551674
+			},
+			"52.14.119.162": {
+					"description": "Beamable Minecraft",
+					"version": "1.18.1",
+					"players": [],
+					"discovered": 1654700552559,
+					"lastTimeOnline": 1654700552559
+			}
 	}
 }
