@@ -15,7 +15,6 @@ function newFind(IP, callback=(response, err)=>{}, PORT=25565, auto_restart=true
             callback(null, err);
         } else {
                 // Success!
-            if (auto_restart) console.log(IP+' in '+res.version.name+' server found');
             storeServer(IP, res);
             callback(res, null);
         }
