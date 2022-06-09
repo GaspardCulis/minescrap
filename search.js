@@ -5,65 +5,82 @@ const cliProgress = require('cli-progress');
 const fs = require('fs');
 
 var active_queries = 0;
-const MAX_QUERIES = 10000;
+const MAX_QUERIES = 1000;
 
-function newFind(IP, callback=(response, err)=>{}, PORT=25565, auto_restart=true) {
+function newFind(IP, callback=(response, err)=>{}, PORT=25565, auto_restart=true, timeout=5000) {
     active_queries += 1;
+    let yeeted = false;
+    const yeeTimeout = setTimeout(()=>{
+        if(yeeted) return;
+        yeeted = true;
+        active_queries -= 1;
+        callback({
+            response: null,
+            error: "Timeout"
+        });
+    }, timeout+100);
     mcping(IP, PORT, function(err, res) {
+        if (yeeted) return;
+        yeeted = true;
+        active_queries -= 1;
+    
         if (err) {
             // Some kind of error
             callback(null, err);
         } else {
                 // Success!
-            storeServer(IP, res, (response)=>{
-                callback(response, null); 
-            });
+            //storeServer(IP, res, (response)=>{
+            //    callback(response, null); 
+            //});
         }
 
-        active_queries -= 1;
         if (active_queries < MAX_QUERIES & auto_restart) {
             newFind(Utils.generateIp());
         }
 
-    }, 1000)
+    }, timeout);
 
 }
 
+exports.updateServers = updateServers;
 async function updateServers() {
     let database = Utils.getDatabase();
+    let serverCount = Object.keys(database.servers).length;
     let splitedServers = [ ]
     let index = 0;
     let online = 0;
     let offline = 0;
     let new_players = 0;
-    console.log('Spliting servers in chunks of '+MAX_QUERIES);
+    console.log('Spliting servers in batchs of '+MAX_QUERIES);
     do {
         let old_index = index;
-        index = Math.min(index+MAX_QUERIES, database.servers.length)
-        splitedServers.push( database.servers.slice(old_index, index) )
-    } while(index!=database.servers.length);
+        index = Math.min(index+MAX_QUERIES, serverCount)
+        splitedServers.push( Object.keys(database.servers).slice(old_index, index) )
+    } while(index!=serverCount);
     console.log('Splited servers: '+splitedServers.length);
-    const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
-    progressBar.start(database.servers.length, 0);
-    for (let servers of splitedServers) {
-        for (let server of servers) {
-            newFind(server.IP,(response, err)=>{
+    for (let i = 0; i < splitedServers.length; i++) {
+        console.log('Starting batch '+(i+1)+'/'+splitedServers.length+' with '+online+' servers online');
+        const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+        progressBar.start(splitedServers[i].length, 0);
+        for (let k of splitedServers[i]) {
+            let server = database.servers[k];
+            newFind(k,(response, err)=>{
                 if (err) {
                     offline += 1;
                 } else {
                     online += 1;
                     new_players += response.new_players;
                 }
-                progressBar.update(online+offline);
             }, 25565, false);
         }
+        while (active_queries!=0) {
+            await Utils.sleep(100);
+            progressBar.update(active_queries);
+        }
+        progressBar.stop();
+
     }
-    while(active_queries !=0) {
-        await Utils.sleep(1000);
-        console.log('Waiting for queries to finish... ('+active_queries+')');
-    }
-    progressBar.stop();
-    console.log('Updated '+database.servers.length.toString()+' servers. \n\t├ Online: '+online.toString()+' \n\t├ Offline: '+offline.toString()+' \n\t└ New players: '+new_players.toString());
+    console.log('Updated '+serverCount.toString()+' servers. \n\t├ Online: '+online.toString()+' \n\t├ Offline: '+offline.toString()+' \n\t└ New players: '+new_players.toString());
 }
 
 exports.searchServers = searchServers;
@@ -89,10 +106,10 @@ function storeServer(IP, query, callback=(response)=>{}) {
         // Updating server in DB
         database.servers[IP].lastTimeOnline = timestamp;
         if (query.players.sample) {
-            let players = database.servers[IP].players
+            let players = database.servers[IP].players;
             for(let player of query.players.sample) {
                 let playerIndex = 0;
-                while (playerIndex<players.length & 
+                while (playerIndex<players.length && 
                         players[playerIndex].name!=player.name) {
                     playerIndex+=1;
                 }

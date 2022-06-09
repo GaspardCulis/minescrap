@@ -9,10 +9,14 @@ switch (arguments[0]) {
         Search.searchServers();
         break;
     case 'update':
-        Utils.updateServers();
+        Search.updateServers();
         break;
     case 'info':
-        Utils.getDatabaseInfo();
+        if (arguments.length == 2) {
+            console.log(Utils.getDatabase().servers[arguments[1]]);
+        } else {
+            Utils.getDatabaseInfo();
+        }
         break;
     case 'players':
         if (arguments.length == 2) {

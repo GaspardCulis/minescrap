@@ -34,11 +34,7 @@ function storeDatabase(database) {
   
 exports.getDatabase = getDatabase;
 function getDatabase() {
-    try {
-        return JSON.parse(fs.readFileSync('database.json'));
-    } catch {
-        return getDatabase();
-    }
+    return JSON.parse(fs.readFileSync('database.json'));
 }
 
 exports.getPlayersNames = getPlayersNames;
