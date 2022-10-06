@@ -26,9 +26,7 @@ async function onServerFound(data) {
         Exists(
             Match(Index('servers_by_ip'), data.ip)
         )
-
-        .catch(e => console.log)
-    );
+    ).catch(e => console.log);
     if(serverExists) {
         
     } else {
@@ -39,7 +37,7 @@ async function onServerFound(data) {
                 Collection("servers"),
                 {data: data}
             )
-        )
+        ).catch(e => console.log);
     }
 }
 
@@ -55,4 +53,4 @@ masscan.on("found", (ip, ports) => {
     })
 })
 
-masscan.start("0.0.0.0/0", "25565", 100000, "data/exclude.conf");
+masscan.start("0.0.0.0/0", "25565", 10000, "data/exclude.conf");
