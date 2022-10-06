@@ -26,6 +26,8 @@ async function onServerFound(data) {
         Exists(
             Match(Index('servers_by_ip'), data.ip)
         )
+
+        .catch(e => console.log)
     );
     if(serverExists) {
         
@@ -38,16 +40,6 @@ async function onServerFound(data) {
                 {data: data}
             )
         )
-        if (Array.isArray(data.players)) {
-            for(let player in data.players) {
-                client.query(
-                    Create(
-                        Collection("players"),
-                        {data: player}
-                    )
-                )
-            }
-        }
     }
 }
 
