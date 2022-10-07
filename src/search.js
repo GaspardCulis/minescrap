@@ -15,13 +15,35 @@ const argv = yargs
 let masscan = new Masscan();
 
 async function onServerFound(data) {
-    
-    if(await database.serverExists(data.ips).catch(e => console.log)) {
+    let server_exists = await database.serverExists(data.ips).catch(e => console.log)
+    if(server_exists) {
         database.updateServerData(data.ip, {lastTimeOnline: Date.now()}).catch(e => console.log);
     } else {
         data.discovered = Date.now();
         data.lastTimeOnline = data.discovered;
         database.addServer(data).catch(e => console.log);
+    }
+    if (data.players) {
+        let players = data.players.sample ? data.players.sample : (Array.isArray(data.players) ? data.players : []); 
+        players.forEach(async player => {
+            if (!(player.id && player.name)) return;
+            let player_exists = await database.playerIdExists(player.id).catch(e => console.log);
+            if(!player_exists) {
+                player.serversPlayed = [
+                    {
+                        ip: data.ip,
+                        lastTimeOnline: Date.now()
+                    }];
+                database.addPlayer(player).catch(e => console.log);
+            } else {
+                let player_data = await database.getPlayerData(player.id).catch(e => console.log);
+                player_data.data.serversPlayed.push({
+                    ip: data.ip,
+                    lastTimeOnline: Date.now()
+                });
+                database.updatePlayerData(player.id, player_data.data).catch(e => console.log);
+            }
+        });
     }
 }
 
@@ -29,7 +51,6 @@ async function onServerFound(data) {
 masscan.on("found", async (ip, ports) => {
     status.getStatus(ip, 25565).then((response) => {
         response.ip = ip;
-        response.favicon = undefined;
         response.ping = undefined;
         console.log(`Found : ${ip} on port ${ports}   |   rate=${masscan.rate} percentage=${masscan.percentage}%`);
         onServerFound(response);

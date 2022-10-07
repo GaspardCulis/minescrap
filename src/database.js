@@ -81,9 +81,72 @@ async function getServerCount() {
     )
 }
 
+/**
+ * Checks if a player uuid is present in database
+ * @param {String} player_id
+ * @returns {Promise<object>}
+ */
+ async function playerIdExists(player_id) {
+    return client.query(
+        Exists(
+            Match(Index('players_by_id'), player_id)
+        )
+    )
+}
+
+/**
+ * Gets player data from database
+ * @param {String} player_id 
+ * @returns @returns {Promise<object>} Player data is in the root data property
+ */
+async function getPlayerData(player_id) {
+    return client.query(
+        Get(
+            Match(Index("players_by_id"), player_id)
+        )
+    );
+}
+
+/**
+ * Adds player to the player list
+ * @param {Object} data 
+ * @returns {Promise<object>}
+ */
+async function addPlayer(data) {
+    return client.query(
+        Create(
+            Collection("players"),
+            {data: data}
+        )
+    );
+}
+
+/**
+ * @param {String} player_id 
+ * @param {Object} data 
+ * @returns {Promise<object>}
+ */
+ async function updatePlayerData(player_id, data) {
+    return client.query(
+        Update(          
+            Select("ref",
+                Get(
+                    Match(Index("players_by_id"), player_id)
+                ),
+            ),
+            {
+                data: data
+            }
+        )
+    );
+}
+
 module.exports = {
     serverExists: serverExists,
     updateServerData: updateServerData,
     addServer: addServer,
     getServerCount: getServerCount,
+    playerNameExists: playerIdExists,
+    addPlayer: addPlayer,
+    getPlayerData: getPlayerData
 }
