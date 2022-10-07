@@ -227,7 +227,7 @@ async function getPlayers() {
         Map(
             Paginate(
                 Documents(Collection("players")),
-                { size: filters.max_results || await getServerCount() - 1 }
+                { size: await getServerCount() - 1 }
             ), Lambda('x', Get(Var('x')))
         )
     );
