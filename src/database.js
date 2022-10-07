@@ -146,7 +146,7 @@ module.exports = {
     updateServerData: updateServerData,
     addServer: addServer,
     getServerCount: getServerCount,
-    playerNameExists: playerIdExists,
+    playerIdExists: playerIdExists,
     addPlayer: addPlayer,
     getPlayerData: getPlayerData
 }
