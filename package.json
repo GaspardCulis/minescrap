@@ -11,8 +11,6 @@
   "dependencies": {
     "cli-progress": "^3.11.1",
     "faunadb": "^4.7.0",
-    "mc-ping-updated": "^0.1.1",
-    "minecraft-server-status": "^1.0.1",
-    "mineflayer": "^4.3.0"
+    "minecraft-server-status-improved": "^1.0.4"
   }
 }
