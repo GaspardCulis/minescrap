@@ -161,8 +161,7 @@ async function getServers(filters) {
                                 filter
                             )
                             )
-                        ),
-                        { size: filters.max_results || await getServerCount() - 1 }
+                        ), { size: filters.max_results || await getServerCount() - 1 }
                 ), Lambda('x', Get(Var('x')))  
             )
         )
@@ -170,7 +169,8 @@ async function getServers(filters) {
         results = await client.query(
             Map(
                 Paginate(
-                    Documents(Collection('servers'))
+                    Documents(Collection('servers')),
+                    { size: filters.max_results || await getServerCount() - 1 }
                 ), Lambda('x', Get(Var('x')))
             )
         , {})
@@ -226,7 +226,8 @@ async function getPlayers() {
     let players = await client.query(
         Map(
             Paginate(
-                Documents(Collection("players"))
+                Documents(Collection("players")),
+                { size: filters.max_results || await getServerCount() - 1 }
             ), Lambda('x', Get(Var('x')))
         )
     );
