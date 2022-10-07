@@ -88,6 +88,18 @@ async function getServerCount() {
 }
 
 /**
+ * @param {String} ip 
+ * @returns 
+ */
+async function getServerByIp(ip) {
+    return client.query(
+        Get(
+            Match(Index("servers_by_ip"), ip)
+        )
+    )
+}
+
+/**
  * @param {Object} filters
  * @param {String} filters.version
  * @param {String} filters.min_players
@@ -252,5 +264,6 @@ module.exports = {
     getPlayerData: getPlayerData,
     updatePlayerData: updatePlayerData,
     getPlayerCount: getPlayerCount,
-    getServers: getServers
+    getServers: getServers,
+    getServerByIp: getServerByIp
 }
