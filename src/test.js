@@ -58,9 +58,8 @@ masscan.on("found", async (ip, ports) => {
         response.favicon = undefined;
         response.ping = undefined;
         console.log(`Found : ${ip} on port ${ports}`);
-        console.log(response);
         onServerFound(response);
-    }).catch();
+    }).catch((reason) => {});
 })
 
 masscan.start("0.0.0.0/0", "25565", 10000, "data/exclude.conf");
