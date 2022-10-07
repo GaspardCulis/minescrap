@@ -66,7 +66,7 @@ async function onServerFound(data) {
     if(server_exists) {
         let oldData = await database.getServerByIp(data.ip).catch(e => console.log);
         if (players) {
-            data.players.sample.push(...oldData.data.players.sample);
+            data.players.sample.push(...oldData.players.sample);
         }
 
         database.updateServerData(data.ip, {lastTimeOnline: Date.now(), players: [...new Set(data.players.sample)]}).catch(e => console.log);
