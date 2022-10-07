@@ -1,4 +1,5 @@
 const express = require('express');
+const { query } = require('faunadb');
 const database = require("./database");
 
 const PORT = 6969
@@ -13,7 +14,9 @@ app.get('/', async (req, res) => {
 })
 
 app.get('/servers', async (req, res) => {
-    let servers = await database.getServers();
+    console.log(req.query);
+    req.query.reverse = req.query.reverse ? true : false
+    let servers = await database.getServers(req.query);
     res.json(servers);
 })
 

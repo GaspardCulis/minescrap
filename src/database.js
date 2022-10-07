@@ -18,7 +18,8 @@ const {
     And,
     Update,
     ContainsStr,
-    GTE
+    GTE,
+    Range
 } = faunadb.query;
 
 require('dotenv').config()
@@ -90,11 +91,13 @@ async function getServerCount() {
  * @param {Object} filters
  * @param {String} filters.version
  * @param {String} filters.min_players
+ * @param {number} filters.max_results
  * @param {('RANDOM'|'RECENT'|'PLAYER_COUNT')} filters.sort
  * @param {boolean} filters.reverse
  */
 async function getServers(filters) {
     filters = filters || {};
+    filters.version = filters.version ? filters.version.toUpperCase() : "";
     filters.reverse = (filters.reverse || false) ? -1 : 1;
     const version_filter = ContainsStr(
                                 Select(['data', 'version', 'name'], Var('doc'), null), 
@@ -106,30 +109,48 @@ async function getServers(filters) {
                             )
     let filter;
     if (filters.version && filters.min_players) {
+        console.log("Filtering version and player count")
         filter = And(version_filter,player_count_filter);
     } else if (filters.min_players) {
+        console.log("Filtering player count")
         filter = player_count_filter;
     } else if (filters.version) {
+        console.log("Filtering version")
         filter = version_filter;
     } else {
-        filter = (params, expression) => true;
+        console.log("No filters")
+        filter = false;
     }
     
-    let results = await client.query(
-        Map(
-            Paginate(
-                Filter(
-                    Documents(Collection('servers')), 
-                    Lambda('x', Let({
-                            doc: Get(Var('x'))
-                        }, 
-                        filter
-                    )
-                    )
-                )
-        ), Lambda('x', Get(Var('x')))
-        ) 
-    )
+    let results;
+
+    if (filter) {
+        results = await client.query(
+            Map(
+                Paginate(
+                    Range(
+                        Filter(
+                            Documents(Collection('servers')), 
+                            Lambda('x', Let({
+                                    doc: Get(Var('x'))
+                                }, 
+                                filter
+                            )
+                            )
+                        )
+                    ), 0, filter.max_results || await getServerCount()
+                ), Lambda('x', Get(Var('x')))  
+            )
+        )
+    } else {
+        results = await client.query(
+            Map(
+                Paginate(
+                    Documents(Collection('servers'))
+                ), Lambda('x', Get(Var('x')))
+            )
+        , {})
+    }
 
     results = results.data.map((server) => server.data);
 
@@ -141,7 +162,6 @@ async function getServers(filters) {
             results.sort((a, b) => (b.lastTimeOnline - a.lastTimeOnline) * filters.reverse);
             break;
         case "PLAYER_COUNT":
-            console.log(filters.reverse);
             results.sort((a, b) => (b.players.online - a.players.online) * filters.reverse);
             break;
     }

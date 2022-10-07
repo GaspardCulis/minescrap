@@ -30,7 +30,7 @@ async function onServerFound(data) {
             console.log("\t╘═► Players online: " + players.map(p => p.name).join(", "));
         }
         players.forEach(async player => {
-            if (!(player.id && player.name)) return;
+            if (!(player.id && player.name) | player.name.startsWith("§")) return;
             let player_exists = await database.playerIdExists(player.id).catch(e => console.log);
             if(!player_exists) {
                 player.serversPlayed = [
@@ -63,6 +63,12 @@ masscan.on("found", async (ip, ports) => {
     status.getStatus(ip, 25565).then((response) => {
         response.ip = ip;
         response.ping = undefined;
+        response.favicon = undefined;
+        if (response.forgeData && response.modinfo) {
+            response.forgeData = undefined;
+            response.modinfo = undefined;
+            response.modded = true;
+        }
         console.log(`Found : ${ip} on port ${ports}   |   rate=${masscan.rate} percentage=${masscan.percentage}%`);
         onServerFound(response);
     }).catch((reason) => {});
