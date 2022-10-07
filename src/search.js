@@ -41,10 +41,17 @@ async function onServerFound(data) {
                 database.addPlayer(player).catch(e => console.log);
             } else {
                 let player_data = await database.getPlayerData(player.id).catch(e => console.log);
-                player_data.data.serversPlayed.push({
-                    ip: data.ip,
-                    lastTimeOnline: Date.now()
-                });
+                let servers_played = player_data.data.serversPlayed;
+                let server_index = servers_played.findIndex(s => s.ip == data.ip);
+                if(server_index == -1) {
+                    servers_played.push({
+                        ip: data.ip,
+                        lastTimeOnline: Date.now()
+                    });
+                    console.log(`\t[RARE] ${player.name} is a fancy boy he also plays on ${data.ip}`);
+                } else {
+                    servers_played[server_index].lastTimeOnline = Date.now();
+                }
                 database.updatePlayerData(player.id, player_data.data).catch(e => console.log);
             }
         });
