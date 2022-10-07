@@ -19,7 +19,8 @@ const {
     Update,
     ContainsStr,
     GTE,
-    Range
+    Equals,
+    Not
 } = faunadb.query;
 
 require('dotenv').config()
@@ -121,9 +122,7 @@ async function getServers(filters) {
                                 filters.min_players
                             )
 
-    const modded_filter =  Equals(
-                            Select(['data', 'modded'], Var('doc'), null), filters.modded
-                        )
+    let modded_filter =  Equals(Select(['data', 'modded'], Var('doc'), null), true);
     let filter;
     if (filters.version && filters.min_players) {
         console.log("Filtering version and player count")
@@ -134,6 +133,14 @@ async function getServers(filters) {
     } else if (filters.version) {
         console.log("Filtering version")
         filter = version_filter;
+    } else if (filters.modded !== undefined) {
+        console.log("Filtering modded");
+        if (filters.modded === false) {
+            modded_filter = Not(modded_filter);
+            console.log("Psartek");
+        }
+        if (!filter) filter = modded_filter;
+        else filter = And(filter, modded_filter);
     } else {
         console.log("No filters")
         filter = false;
@@ -145,17 +152,17 @@ async function getServers(filters) {
         results = await client.query(
             Map(
                 Paginate(
-                    Range(
+
                         Filter(
                             Documents(Collection('servers')), 
                             Lambda('x', Let({
                                     doc: Get(Var('x'))
                                 }, 
-                                And(filter, filters.modded ? modded_filter : (a,b) => true)
+                                filter
                             )
                             )
-                        )
-                    ), 0, filter.max_results || await getServerCount()
+                        ),
+                        { size: filters.max_results || await getServerCount() - 1 }
                 ), Lambda('x', Get(Var('x')))  
             )
         )
@@ -201,7 +208,7 @@ async function getServers(filters) {
 /**
  * Gets player data from database
  * @param {String} player_id 
- * @returns @returns {Promise<object>} Player data is in the root data property
+ * @returns {Promise<object>} Player data is in the root data property
  */
 async function getPlayerData(player_id) {
     return client.query(
@@ -209,6 +216,21 @@ async function getPlayerData(player_id) {
             Match(Index("players_by_id"), player_id)
         )
     );
+}
+
+/**
+ * 
+ * @returns {Promise<object>}
+ */
+async function getPlayers() {
+    let players = await client.query(
+        Map(
+            Paginate(
+                Documents(Collection("players"))
+            ), Lambda('x', Get(Var('x')))
+        )
+    );
+    return players.data.map((player) => player.data);
 }
 
 /**
@@ -231,7 +253,7 @@ async function addPlayer(data) {
  * @returns {Promise<object>}
  */
  async function updatePlayerData(player_id, data) {
-    return client.query(
+    return await client.query(
         Update(          
             Select("ref",
                 Get(
@@ -270,5 +292,6 @@ module.exports = {
     updatePlayerData: updatePlayerData,
     getPlayerCount: getPlayerCount,
     getServers: getServers,
-    getServerByIp: getServerByIp
+    getServerByIp: getServerByIp,
+    getPlayers: getPlayers
 }
