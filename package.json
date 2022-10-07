@@ -11,6 +11,6 @@
   "dependencies": {
     "cli-progress": "^3.11.1",
     "faunadb": "^4.7.0",
-    "minecraft-server-status-improved": "^1.0.4"
+    "mc-server-status": "^2.0.2"
   }
 }
