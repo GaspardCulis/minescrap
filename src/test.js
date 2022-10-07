@@ -28,7 +28,17 @@ async function onServerFound(data) {
         )
     ).catch(e => console.log);
     if(serverExists) {
-        
+        client.query(
+            Update(
+                Select("ref"),
+                Get(
+                    Match(Index("servers_by_ip"), data.ip)
+                ),
+                {
+                    data: {lastTimeOnline: Date.now()}
+                }
+            )
+        )
     } else {
         data.discovered = Date.now();
         data.lastTimeOnline = data.discovered;
