@@ -60,7 +60,7 @@ masscan.on("found", (ip, ports) => {
             console.log(`Found : ${ip} on port ${ports}`);
             onServerFound(response);
         }
-    }).catch((e)=>console.log(`[MC-PING Error] - ${e}`));
+    });//.catch((e)=>console.log(`[MC-PING Error] - ${e}`));
 })
 
 masscan.start("0.0.0.0/0", "25565", 10000, "data/exclude.conf");
