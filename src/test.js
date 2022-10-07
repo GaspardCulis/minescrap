@@ -58,7 +58,7 @@ masscan.on("found", async (ip, ports) => {
         response.ip = ip;
         response.favicon = undefined;
         response.ping = undefined;
-        console.log(`Found : ${ip} on port ${ports}`);
+        console.log(`Found : ${ip} on port ${ports}   |   rate=${masscan.rate} percentage=${masscan.percentage}%`);
         onServerFound(response);
     }).catch((reason) => {});
 })

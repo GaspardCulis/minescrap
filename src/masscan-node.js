@@ -34,7 +34,14 @@ class Masscan extends EventEmitter {
         })
 
         this.process.stderr.on("data", (chunk) => {
-            this.last_output = chunk;
+            if (chunk.startsWith("rate:")) {
+                this.last_output = chunk;
+                let split = chunk.replace(/\s+/g,"").split(",");
+                this.rate = parseFloat(split[0].slice(5).split("-")[0]);
+                this.percentage = parseFloat(split[1].split("%")[0]);
+                this.remaining = split[2].replace("remaining", "");
+                this.found = parseFloat(split[3].split("=")[1]);
+            }
         });
 
         this.process.once("exit", (err) => {
@@ -43,7 +50,7 @@ class Masscan extends EventEmitter {
             } else if (err==0) {
                 this.emit("finished");
             } else {
-                throw new Error("Encountered unespected exit code");
+                throw new Error("Encountered unespected exit code : "+err);
             }
         });
     }
