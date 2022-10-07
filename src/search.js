@@ -9,10 +9,21 @@ const argv = yargs
     description: 'The masscar max rate',
     type: 'number'
   })
+  .option('verbose', {
+    alias: 'v',
+    description: 'Verbose new server data',
+    type: 'boolean'
+})
   .help()
   .alias('help', 'h').argv;
 
 let masscan = new Masscan();
+
+function print(msg) {
+    if (argv.verbose) {
+        console.log(msg);
+    }
+}
 
 async function onServerFound(data) {
     let server_exists = await database.serverExists(data.ips).catch(e => console.log)
@@ -22,7 +33,7 @@ async function onServerFound(data) {
         players = data.players.sample || [];
         data.players.sample = players;
         if (players.length > 0) {
-            console.log("\t╘═► Players online: " + players.map(p => p.name).join(", "));
+            print("\t╘═► Players online: " + players.map(p => p.name).join(", "));
         }
         players.forEach(async player => {
             if (!(player.id && player.name) | player.name.startsWith("§")) return;
@@ -43,7 +54,7 @@ async function onServerFound(data) {
                         ip: data.ip,
                         lastTimeOnline: Date.now()
                     });
-                    console.log(`\t[RARE] ${player.name} is a fancy boy he plays on ${servers_played.map(s => s.ip).join(", ")}`);
+                    print(`\t[RARE] ${player.name} is a fancy boy he plays on ${servers_played.map(s => s.ip).join(", ")}`);
                 } else {
                     servers_played[server_index].lastTimeOnline = Date.now();
                 }
@@ -59,7 +70,7 @@ async function onServerFound(data) {
         }
 
         database.updateServerData(data.ip, {lastTimeOnline: Date.now(), players: [...new Set(data.players.sample)]}).catch(e => console.log);
-        console.log("\t╘═► Server already exists, updating lastTimeOnline");
+        print("\t╘═► Server already exists, updating lastTimeOnline");
     } else {
         data.discovered = Date.now();
         data.lastTimeOnline = data.discovered;
