@@ -4,7 +4,8 @@
   "description": "Finds server by bruteforce",
   "main": "search.js",
   "scripts": {
-    "test": "node search.js"
+    "search": "node src/search.js",
+    "api": "node src/api.js"
   },
   "author": "MOI",
   "license": "ISC",
