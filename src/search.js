@@ -64,9 +64,10 @@ masscan.on("found", async (ip, ports) => {
         response.ip = ip;
         response.ping = undefined;
         response.favicon = undefined;
-        if (response.forgeData && response.modinfo) {
+        if (response.forgeData || response.modinfo || response.modpackData) {
             response.forgeData = undefined;
             response.modinfo = undefined;
+            response.modpackData = undefined;
             response.modded = true;
         }
         console.log(`Found : ${ip} on port ${ports}   |   rate=${masscan.rate} percentage=${masscan.percentage}%`);
