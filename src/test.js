@@ -56,10 +56,11 @@ masscan.on("found", async (ip, ports) => {
     status.getStatus(ip, 25565).then((response) => {
         response.ip = ip;
         response.favicon = undefined;
+        response.ping = undefined;
         console.log(`Found : ${ip} on port ${ports}`);
         console.log(response);
         onServerFound(response);
-    }).catch((e)=>console.log(`[MC-PING Error] - ${e}`));
+    }).catch();
 })
 
 masscan.start("0.0.0.0/0", "25565", 10000, "data/exclude.conf");
