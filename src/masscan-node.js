@@ -50,7 +50,7 @@ class Masscan extends EventEmitter {
             } else if (err==0) {
                 this.emit("finished");
             } else {
-                throw new Error("Encountered unespected exit code : "+err);
+                throw new Error("Encountered unespected exit code : "+err+"\nLast masscan output :\n\t"+this.last_output);
             }
         });
     }
