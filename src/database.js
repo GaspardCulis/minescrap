@@ -102,6 +102,7 @@ async function getServerByIp(ip) {
 /**
  * @param {Object} filters
  * @param {String} filters.version
+ * @param {boolean} filters.modded
  * @param {String} filters.min_players
  * @param {number} filters.max_results
  * @param {('RANDOM'|'RECENT'|'PLAYER_COUNT')} filters.sort
@@ -119,6 +120,10 @@ async function getServers(filters) {
                                 Select(['data', 'players', 'online'], Var('doc'), null), 
                                 filters.min_players
                             )
+
+    const modded_filter =  Equals(
+                            Select(['data', 'modded'], Var('doc'), null), filters.modded
+                        )
     let filter;
     if (filters.version && filters.min_players) {
         console.log("Filtering version and player count")
@@ -146,7 +151,7 @@ async function getServers(filters) {
                             Lambda('x', Let({
                                     doc: Get(Var('x'))
                                 }, 
-                                filter
+                                And(filter, filters.modded ? modded_filter : (a,b) => true)
                             )
                             )
                         )
