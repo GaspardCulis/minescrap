@@ -113,7 +113,7 @@ async function getServers(filters) {
     filters = filters || {};
     filters.version = filters.version ? filters.version.toUpperCase() : "";
     filters.reverse = (filters.reverse || false) ? -1 : 1;
-    filters.max_results = ParseInt(filters.max_results);
+    filters.max_results = parseInt(filters.max_results);
     const version_filter = ContainsStr(
                                 Select(['data', 'version', 'name'], Var('doc'), null), 
                                 filters.version
