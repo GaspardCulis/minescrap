@@ -7,8 +7,8 @@ const app = express()
 
 app.get('/', async (req, res) => {
     res.send(`
-        Welcome to minescrap API !\n\n
-        We currently own ${await database.getServerCount()} servers.
+        <strong>Welcome to minescrap API !</strong><br>
+        We currently own <strong>${await database.getServerCount()}</strong> servers and know <strong>${await database.getPlayerCount()}</strong> players.
     `)
 })
 

@@ -141,6 +141,20 @@ async function addPlayer(data) {
     );
 }
 
+/**
+ * Returns the total number of players in the database
+ * @returns {Promise<object>}
+ */
+ async function getPlayerCount() {
+    return client.query(
+        Count(
+            Documents(
+                Collection("players")
+            )
+        )
+    )
+}
+
 module.exports = {
     serverExists: serverExists,
     updateServerData: updateServerData,
@@ -148,5 +162,7 @@ module.exports = {
     getServerCount: getServerCount,
     playerIdExists: playerIdExists,
     addPlayer: addPlayer,
-    getPlayerData: getPlayerData
+    getPlayerData: getPlayerData,
+    updatePlayerData: updatePlayerData,
+    getPlayerCount: getPlayerCount
 }
