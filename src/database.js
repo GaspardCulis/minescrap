@@ -1,5 +1,4 @@
 const faunadb = require("faunadb");
-const { Update } = require("faunadb");
 const {
     Paginate,
     Get,
@@ -11,9 +10,15 @@ const {
     Exists,
     Lambda,
     Var,
-    Join,
+    Let,
+    Filter,
     Count,
-    Documents
+    Documents,
+    Map,
+    And,
+    Update,
+    ContainsStr,
+    GTE
 } = faunadb.query;
 
 require('dotenv').config()
@@ -79,6 +84,68 @@ async function getServerCount() {
             )
         )
     )
+}
+
+/**
+ * @param {Object} filters
+ * @param {String} filters.version
+ * @param {String} filters.min_players
+ * @param {('RANDOM'|'RECENT'|'PLAYER_COUNT')} filters.sort
+ * @param {boolean} filters.reverse
+ */
+async function getServers(filters) {
+    filters = filters || {};
+    filters.reverse = (filters.reverse || false) ? -1 : 1;
+    const version_filter = ContainsStr(
+                                Select(['data', 'version', 'name'], Var('doc'), null), 
+                                filters.version
+                            )
+    const player_count_filter = GTE(
+                                Select(['data', 'players', 'online'], Var('doc'), null), 
+                                filters.min_players
+                            )
+    let filter;
+    if (filters.version && filters.min_players) {
+        filter = And(version_filter,player_count_filter);
+    } else if (filters.min_players) {
+        filter = player_count_filter;
+    } else if (filters.version) {
+        filter = version_filter;
+    } else {
+        filter = (params, expression) => true;
+    }
+    
+    let results = await client.query(
+        Map(
+            Paginate(
+                Filter(
+                    Documents(Collection('servers')), 
+                    Lambda('x', Let({
+                            doc: Get(Var('x'))
+                        }, 
+                        filter
+                    )
+                    )
+                )
+        ), Lambda('x', Get(Var('x')))
+        ) 
+    )
+
+    results = results.data.map((server) => server.data);
+
+    switch (filters.sort) {
+        case "RANDOM":
+            results.sort(() => Math.random() - 0.5);
+            break;
+        case "RECENT":
+            results.sort((a, b) => (b.lastTimeOnline - a.lastTimeOnline) * filters.reverse);
+            break;
+        case "PLAYER_COUNT":
+            console.log(filters.reverse);
+            results.sort((a, b) => (b.players.online - a.players.online) * filters.reverse);
+            break;
+    }
+    return results;
 }
 
 /**
@@ -164,5 +231,6 @@ module.exports = {
     addPlayer: addPlayer,
     getPlayerData: getPlayerData,
     updatePlayerData: updatePlayerData,
-    getPlayerCount: getPlayerCount
+    getPlayerCount: getPlayerCount,
+    getServers: getServers
 }
