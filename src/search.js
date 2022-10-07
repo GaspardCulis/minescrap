@@ -90,7 +90,7 @@ masscan.on("found", async (ip, ports) => {
             response.modpackData = undefined;
             response.modded = true;
         }
-        console.log(`Found : ${ip} on port ${ports}   |   rate=${masscan.rate} percentage=${masscan.percentage}%`);
+        print(`Found : ${ip} on port ${ports}   |   rate=${masscan.rate} percentage=${masscan.percentage}%`);
         onServerFound(response);
     }).catch((reason) => {});
 })
