@@ -38,7 +38,7 @@ async function onServerFound(data) {
                     data: {lastTimeOnline: Date.now()}
                 }
             )
-        )
+        ).catch(e => console.log);
     } else {
         data.discovered = Date.now();
         data.lastTimeOnline = data.discovered;
@@ -53,14 +53,18 @@ async function onServerFound(data) {
 
 
 masscan.on("found", (ip, ports) => {
-    mcping(ip, 25565, (err, response) => {
-        if (!err) {
-            response.ip = ip;
-            response.favicon = undefined;
-            console.log(`Found : ${ip} on port ${ports}`);
-            onServerFound(response);
-        }
-    })
+    try {
+        mcping(ip, 25565, (err, response) => {
+            if (!err) {
+                response.ip = ip;
+                response.favicon = undefined;
+                console.log(`Found : ${ip} on port ${ports}`);
+                onServerFound(response);
+            }
+        })
+    } catch (e) {
+        console.log(`[MC-PING Error] - ${e}`);
+    }
 })
 
 masscan.start("0.0.0.0/0", "25565", 10000, "data/exclude.conf");
