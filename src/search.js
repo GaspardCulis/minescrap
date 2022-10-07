@@ -1,6 +1,16 @@
 const {Masscan} = require("./masscan-node");
 const status = require("mc-server-status");
 const database = require("./database");
+const yargs = require('yargs');
+
+const argv = yargs
+  .option('rate', {
+    alias: 'r',
+    description: 'The masscar max rate',
+    type: 'number'
+  })
+  .help()
+  .alias('help', 'h').argv;
 
 let masscan = new Masscan();
 
@@ -26,4 +36,8 @@ masscan.on("found", async (ip, ports) => {
     }).catch((reason) => {});
 })
 
-masscan.start("0.0.0.0/0", "25565", process.argv.length > 2 ? process.argv[3] : 10000, "data/exclude.conf");
+masscan.on("error", (msg) => {
+    console.log(msg);
+})
+
+masscan.start("0.0.0.0/0", "25565", argv.rate ? argv.rate : 10000, "data/exclude.conf");

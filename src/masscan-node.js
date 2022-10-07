@@ -46,7 +46,7 @@ class Masscan extends EventEmitter {
 
         this.process.once("exit", (err) => {
             if (err==1) {
-                this.emit("error", this.last_output);
+                this.emit("error", this.last_output ? this.last_output : "Masscan proccess exited with error code 1, try with sudo.");
             } else if (err==0) {
                 this.emit("finished");
             } else {
