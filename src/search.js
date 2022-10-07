@@ -48,7 +48,7 @@ async function onServerFound(data) {
                         ip: data.ip,
                         lastTimeOnline: Date.now()
                     });
-                    console.log(`\t[RARE] ${player.name} is a fancy boy he also plays on ${data.ip}`);
+                    console.log(`\t[RARE] ${player.name} is a fancy boy he plays on ${servers_played.map(s => s.ip).join(", ")}`);
                 } else {
                     servers_played[server_index].lastTimeOnline = Date.now();
                 }
