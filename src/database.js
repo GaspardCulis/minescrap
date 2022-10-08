@@ -115,7 +115,7 @@ async function getServers(filters) {
     filters.reverse = (filters.reverse || false) ? -1 : 1;
     filters.max_results = parseInt(filters.max_results);
     const version_filter = ContainsStr(
-                                Select(['data', 'version', 'name'], Var('doc'), null), 
+                                Select(['data', 'version', 'name'], Var('doc'), ""), 
                                 filters.version
                             )
     const player_count_filter = GTE(
