@@ -26,6 +26,7 @@ function print(msg) {
 }
 
 async function onServerFound(data) {
+    console.info("Checking if sever exists in database...");
     let server_exists = await database.serverExists(data.ip).catch(e => {throw e});
     console.info(`Server ${data.ip} exists: ${server_exists}`);
     // First checking players
