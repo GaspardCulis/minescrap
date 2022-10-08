@@ -32,7 +32,7 @@ const client = new faunadb.Client({secret: process.env.FAUNA_KEY, domain: "db.eu
  * @param {String} server_ip
  * @returns {Promise<object>}
  */
-async function serverExists(server_ip) {
+function serverExists(server_ip) {
     return client.query(
         Exists(
             Match(Index('servers_by_ip'), server_ip)
@@ -45,7 +45,7 @@ async function serverExists(server_ip) {
  * @param {Object} data 
  * @returns {Promise<object>}
  */
-async function updateServerData(server_ip, data) {
+function updateServerData(server_ip, data) {
     return client.query(
         Update(          
             Select("ref",
@@ -65,7 +65,7 @@ async function updateServerData(server_ip, data) {
  * @param {Object} data 
  * @returns {Promise<object>}
  */
-async function addServer(data) {
+function addServer(data) {
     return client.query(
         Create(
             Collection("servers"),
@@ -78,7 +78,7 @@ async function addServer(data) {
  * Returns the total number of servers in the database
  * @returns {Promise<object>}
  */
-async function getServerCount() {
+function getServerCount() {
     return client.query(
         Count(
             Documents(
@@ -97,7 +97,7 @@ async function getServerByIp(ip) {
         Get(
             Match(Index("servers_by_ip"), ip)
         )
-    )).data;
+    ).catch(e => {throw e})).data;
 }
 
 /**
@@ -162,10 +162,10 @@ async function getServers(filters) {
                                 filter
                             )
                             )
-                        ), { size: filters.max_results || await getServerCount() - 1 }
+                        ), { size: filters.max_results || await getServerCount().catch(e => {throw e}) - 1 }
                 ), Lambda('x', Get(Var('x')))  
             )
-        )
+        ).catch(e => {throw e});
     } else {
         results = await client.query(
             Map(
@@ -174,7 +174,7 @@ async function getServers(filters) {
                     { size: filters.max_results || await getServerCount() - 1 }
                 ), Lambda('x', Get(Var('x')))
             )
-        , {})
+        , {}).catch(e => {throw e});
     }
 
     results = results.data.map((server) => server.data);
@@ -198,7 +198,7 @@ async function getServers(filters) {
  * @param {String} player_id
  * @returns {Promise<object>}
  */
- async function playerIdExists(player_id) {
+function playerIdExists(player_id) {
     return client.query(
         Exists(
             Match(Index('players_by_id'), player_id)
@@ -216,7 +216,7 @@ async function getPlayerData(player_id) {
         Get(
             Match(Index("players_by_id"), player_id)
         )
-    )).data;
+    ).catch(e => {throw e})).data;
 }
 
 /**
@@ -231,7 +231,7 @@ async function getPlayers() {
                 { size: await getServerCount() - 1 }
             ), Lambda('x', Get(Var('x')))
         )
-    );
+    ).catch(e => {throw e});
     return players.data.map((player) => player.data);
 }
 
@@ -240,7 +240,7 @@ async function getPlayers() {
  * @param {Object} data 
  * @returns {Promise<object>}
  */
-async function addPlayer(data) {
+function addPlayer(data) {
     return client.query(
         Create(
             Collection("players"),
@@ -266,14 +266,14 @@ async function addPlayer(data) {
                 data: data
             }
         )
-    );
+    ).catch(e => {throw e});
 }
 
 /**
  * Returns the total number of players in the database
  * @returns {Promise<object>}
  */
- async function getPlayerCount() {
+function getPlayerCount() {
     return client.query(
         Count(
             Documents(
