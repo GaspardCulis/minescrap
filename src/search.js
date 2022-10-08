@@ -47,7 +47,7 @@ async function onServerFound(data) {
                 database.addPlayer(player).catch(e => console.log);
             } else {
                 let player_data = await database.getPlayerData(player.id).catch(e => console.log);
-                let servers_played = player_data.data.serversPlayed;
+                let servers_played = player_data.serversPlayed;
                 let server_index = servers_played.findIndex(s => s.ip == data.ip);
                 if(server_index == -1) {
                     servers_played.push({
@@ -58,7 +58,7 @@ async function onServerFound(data) {
                 } else {
                     servers_played[server_index].lastTimeOnline = Date.now();
                 }
-                database.updatePlayerData(player.id, player_data.data).catch(e => console.log);
+                database.updatePlayerData(player.id, player_data).catch(e => console.log);
             }
         });
     }
@@ -66,7 +66,7 @@ async function onServerFound(data) {
     if(server_exists) {
         let oldData = await database.getServerByIp(data.ip).catch(e => console.log);
         if (players) {
-            data.players.sample.push(...oldData.data.players.sample);
+            data.players.sample.push(...oldData.players.sample);
         }
 
         database.updateServerData(data.ip, {lastTimeOnline: Date.now(), players: [...new Set(data.players.sample)]}).catch(e => console.log);

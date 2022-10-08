@@ -93,11 +93,11 @@ async function getServerCount() {
  * @returns 
  */
 async function getServerByIp(ip) {
-    return client.query(
+    return (await client.query(
         Get(
             Match(Index("servers_by_ip"), ip)
         )
-    )
+    )).data;
 }
 
 /**
@@ -212,11 +212,11 @@ async function getServers(filters) {
  * @returns {Promise<object>} Player data is in the root data property
  */
 async function getPlayerData(player_id) {
-    return client.query(
+    return (await client.query(
         Get(
             Match(Index("players_by_id"), player_id)
         )
-    );
+    )).data;
 }
 
 /**
