@@ -26,7 +26,7 @@ function print(msg) {
 }
 
 async function onServerFound(data) {
-    console.info("Checking if sever exists in database...");
+    console.info("Checking if server exists in database...");
     let server_exists = await database.serverExists(data.ip).catch(e => {throw e});
     console.info(`Server ${data.ip} exists: ${server_exists}`);
     // First checking players
@@ -48,7 +48,7 @@ async function onServerFound(data) {
                         ip: data.ip,
                         lastTimeOnline: Date.now()
                     }];
-                database.addPlayer(player).catch(e => {throw e});
+                database.setPlayer(player).catch(e => {throw e});
             } else {
                 console.info("Player " + player.name + " exists, updating database");
                 let player_data = await database.getPlayerData(player.id).catch(e => {throw e});
@@ -66,7 +66,7 @@ async function onServerFound(data) {
                     servers_played[server_index].lastTimeOnline = Date.now();
                 }
                 console.info("Updating player " + player.name + " in database");
-                database.updatePlayerData(player.id, player_data).catch(e => {throw e});
+                database.setPlayer(player_data).catch(e => {throw e});
             }
         });
     }
@@ -75,15 +75,16 @@ async function onServerFound(data) {
         print("\t╘═► Server already exists, updating lastTimeOnline");
         let oldData = await database.getServerByIp(data.ip).catch(e => {throw e});
         if (players) {
-            data.players.sample.push(...oldData.players.sample);
+            oldData.players.sample.push(...data.players.sample);
         }
+        oldData.lastTimeOnline = Date.now();
 
-        database.updateServerData(data.ip, {lastTimeOnline: Date.now(), players: [...new Set(data.players.sample)]}).catch(e => {throw e});
+        database.setServer(oldData).catch(e => {throw e});
     } else {
         data.discovered = Date.now();
         data.lastTimeOnline = data.discovered;
         print("\t╘═► Server does not exist, adding to database");
-        database.addServer(data).catch(e => {throw e});
+        database.setServer(data).catch(e => {throw e});
     }
 }
 

@@ -1,77 +1,45 @@
-const faunadb = require("faunadb");
-const {
-    Paginate,
-    Get,
-    Select,
-    Match, 
-    Index,
-    Create,
-    Collection,
-    Exists,
-    Lambda,
-    Var,
-    Let,
-    Filter,
-    Count,
-    Documents,
-    Map,
-    And,
-    Update,
-    ContainsStr,
-    GTE,
-    Equals,
-    Not
-} = faunadb.query;
+const redis = require("redis");
 
 require('dotenv').config()
 
-const client = new faunadb.Client({secret: process.env.FAUNA_KEY, domain: "db.eu.fauna.com"});
+const client = redis.createClient({
+    socket: {
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT
+    },
+    username: process.env.REDIS_USER,
+    password: process.env.REDIS_PASSWORD
+})
+
+client.connect();
+
+/**
+ * Adds new server to database
+ * @param {Object} data
+ * @param {String} data.ip,
+ * @param {String | Object | Array} data.description
+ * @param {Object} data.version
+ * @param {String} data.version.name
+ * @param {number} data.version.protocol
+ * @param {Object} data.players
+ * @param {number} data.players.max
+ * @param {number} data.players.online
+ * @param {Array} data.players.sample
+ * @param {number} data.discovered
+ * @param {number} data.lastTimeOnline
+ * @returns {Promise<object>}
+ */
+ function setServer(data) {
+    client.json.set(`servers:${data.ip}`, '$', data);
+}
 
 /**
  * Checks if server is present in database
  * @param {String} server_ip
- * @returns {Promise<object>}
+ * @returns {Promise<boolean>}
  */
 function serverExists(server_ip) {
-    return client.query(
-        Exists(
-            Match(Index('servers_by_ip'), server_ip)
-        )
-    )
-}
-
-/**
- * @param {String} server_ip 
- * @param {Object} data 
- * @returns {Promise<object>}
- */
-function updateServerData(server_ip, data) {
-    return client.query(
-        Update(          
-            Select("ref",
-                Get(
-                    Match(Index("servers_by_ip"), server_ip)
-                ),
-            ),
-            {
-                data: data
-            }
-        )
-    );
-}
-
-/**
- * Adds new server to database
- * @param {Object} data 
- * @returns {Promise<object>}
- */
-function addServer(data) {
-    return client.query(
-        Create(
-            Collection("servers"),
-            {data: data}
-        )
-    );
+    return client.exists(`servers:${server_ip}`);
 }
 
 /**
@@ -90,14 +58,10 @@ function getServerCount() {
 
 /**
  * @param {String} ip 
- * @returns 
+ * @returns {Promise<object>}
  */
 async function getServerByIp(ip) {
-    return (await client.query(
-        Get(
-            Match(Index("servers_by_ip"), ip)
-        )
-    ).catch(e => {throw e})).data;
+    return client.json.get(`servers:${ip}`);
 }
 
 /**
@@ -194,16 +158,24 @@ async function getServers(filters) {
 }
 
 /**
- * Checks if a player uuid is present in database
- * @param {String} player_id
+ * Adds player to the player list
+ * @param {Object} data
+ * @param {String} data.id
+ * @param {String} data.name
+ * @param {Array<{ip: String, lastTimeOnline: number}>} data.serversPlayed
  * @returns {Promise<object>}
  */
+ function setPlayer(data) {
+    return client.json.set(`players:${data.id}`, '$', data);
+}
+
+/**
+ * Checks if a player uuid is present in database
+ * @param {String} player_id
+ * @returns {Promise<boolean>}
+ */
 function playerIdExists(player_id) {
-    return client.query(
-        Exists(
-            Match(Index('players_by_id'), player_id)
-        )
-    )
+    return client.exists(player_id);
 }
 
 /**
@@ -212,11 +184,7 @@ function playerIdExists(player_id) {
  * @returns {Promise<object>} Player data is in the root data property
  */
 async function getPlayerData(player_id) {
-    return (await client.query(
-        Get(
-            Match(Index("players_by_id"), player_id)
-        )
-    ).catch(e => {throw e})).data;
+    return client.json.get(`players:${player_id}`);
 }
 
 /**
@@ -236,40 +204,6 @@ async function getPlayers() {
 }
 
 /**
- * Adds player to the player list
- * @param {Object} data 
- * @returns {Promise<object>}
- */
-function addPlayer(data) {
-    return client.query(
-        Create(
-            Collection("players"),
-            {data: data}
-        )
-    );
-}
-
-/**
- * @param {String} player_id 
- * @param {Object} data 
- * @returns {Promise<object>}
- */
- async function updatePlayerData(player_id, data) {
-    return await client.query(
-        Update(          
-            Select("ref",
-                Get(
-                    Match(Index("players_by_id"), player_id)
-                ),
-            ),
-            {
-                data: data
-            }
-        )
-    ).catch(e => {throw e});
-}
-
-/**
  * Returns the total number of players in the database
  * @returns {Promise<object>}
  */
@@ -285,13 +219,11 @@ function getPlayerCount() {
 
 module.exports = {
     serverExists: serverExists,
-    updateServerData: updateServerData,
-    addServer: addServer,
+    setServer: setServer,
     getServerCount: getServerCount,
     playerIdExists: playerIdExists,
-    addPlayer: addPlayer,
+    setPlayer: setPlayer,
     getPlayerData: getPlayerData,
-    updatePlayerData: updatePlayerData,
     getPlayerCount: getPlayerCount,
     getServers: getServers,
     getServerByIp: getServerByIp,
