@@ -187,7 +187,7 @@ async function getServers(filters) {
             results.sort((a, b) => (b.lastTimeOnline - a.lastTimeOnline) * filters.reverse);
             break;
         case "PLAYER_COUNT":
-            results.sort((a, b) => (b.players.sample.length - a.players.sample.length) * filters.reverse);
+            results.sort((a, b) => ((b.players || {sample: []}).sample.length - (a.players || {sample: []}).sample.length) * filters.reverse);
             break;
     }
     return results;
