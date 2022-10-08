@@ -1,5 +1,4 @@
 const express = require('express');
-const { query } = require('faunadb');
 const database = require("./database");
 
 const PORT = 6969

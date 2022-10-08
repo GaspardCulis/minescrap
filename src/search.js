@@ -26,9 +26,7 @@ function print(msg) {
 }
 
 async function onServerFound(data) {
-    console.info("Checking if server exists in database...");
     let server_exists = await database.serverExists(data.ip).catch(e => {throw e});
-    console.info(`Server ${data.ip} exists: ${server_exists}`);
     // First checking players
     let players;
     if (data.players) {
@@ -39,10 +37,8 @@ async function onServerFound(data) {
         }
         players.forEach(async player => {
             if (!(player.id && player.name) | player.name.startsWith("§")) return;
-            console.info("Checking player " + player.name);
             let player_exists = await database.playerIdExists(player.id).catch(e => {throw e});
             if(!player_exists) {
-                console.info("Player " + player.name + " does not exist, adding to database");
                 player.serversPlayed = [
                     {
                         ip: data.ip,
@@ -50,22 +46,18 @@ async function onServerFound(data) {
                     }];
                 database.setPlayer(player).catch(e => {throw e});
             } else {
-                console.info("Player " + player.name + " exists, updating database");
                 let player_data = await database.getPlayerData(player.id).catch(e => {throw e});
                 let servers_played = player_data.serversPlayed;
                 let server_index = servers_played.findIndex(s => s.ip == data.ip);
                 if(server_index == -1) {
-                    console.info("Player " + player.name + " has not played on this server before, adding to database");
                     servers_played.push({
                         ip: data.ip,
                         lastTimeOnline: Date.now()
                     });
                     print(`\t[RARE] ${player.name} is a fancy boy he plays on ${servers_played.map(s => s.ip).join(", ")}`);
                 } else {
-                    console.info("Player " + player.name + " has played on this server before, updating database");
                     servers_played[server_index].lastTimeOnline = Date.now();
                 }
-                console.info("Updating player " + player.name + " in database");
                 database.setPlayer(player_data).catch(e => {throw e});
             }
         });
@@ -83,7 +75,6 @@ async function onServerFound(data) {
     } else {
         data.discovered = Date.now();
         data.lastTimeOnline = data.discovered;
-        print("\t╘═► Server does not exist, adding to database");
         database.setServer(data).catch(e => {throw e});
     }
 }
