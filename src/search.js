@@ -26,7 +26,7 @@ function print(msg) {
 }
 
 async function onServerFound(data) {
-    let server_exists = await database.serverExists(data.ips).catch(e => console.log)
+    let server_exists = await database.serverExists(data.ips).catch(e => {throw e});
     // First checking players
     let players;
     if (data.players) {
@@ -37,16 +37,16 @@ async function onServerFound(data) {
         }
         players.forEach(async player => {
             if (!(player.id && player.name) | player.name.startsWith("§")) return;
-            let player_exists = await database.playerIdExists(player.id);
+            let player_exists = await database.playerIdExists(player.id).catch(e => {throw e});
             if(!player_exists) {
                 player.serversPlayed = [
                     {
                         ip: data.ip,
                         lastTimeOnline: Date.now()
                     }];
-                database.addPlayer(player);
+                database.addPlayer(player).catch(e => {throw e});
             } else {
-                let player_data = await database.getPlayerData(player.id);
+                let player_data = await database.getPlayerData(player.id).catch(e => {throw e});
                 let servers_played = player_data.serversPlayed;
                 let server_index = servers_played.findIndex(s => s.ip == data.ip);
                 if(server_index == -1) {
@@ -58,23 +58,23 @@ async function onServerFound(data) {
                 } else {
                     servers_played[server_index].lastTimeOnline = Date.now();
                 }
-                database.updatePlayerData(player.id, player_data);
+                database.updatePlayerData(player.id, player_data).catch(e => {throw e});
             }
         });
     }
     // Then updating server data
     if(server_exists) {
-        let oldData = await database.getServerByIp(data.ip);
+        let oldData = await database.getServerByIp(data.ip).catch(e => {throw e});
         if (players) {
             data.players.sample.push(...oldData.players.sample);
         }
 
-        database.updateServerData(data.ip, {lastTimeOnline: Date.now(), players: [...new Set(data.players.sample)]});
+        database.updateServerData(data.ip, {lastTimeOnline: Date.now(), players: [...new Set(data.players.sample)]}).catch(e => {throw e});
         print("\t╘═► Server already exists, updating lastTimeOnline");
     } else {
         data.discovered = Date.now();
         data.lastTimeOnline = data.discovered;
-        database.addServer(data);
+        database.addServer(data).catch(e => {throw e});
     }
 }
 
