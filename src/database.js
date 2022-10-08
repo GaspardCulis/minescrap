@@ -47,13 +47,7 @@ function serverExists(server_ip) {
  * @returns {Promise<object>}
  */
 function getServerCount() {
-    return client.query(
-        Count(
-            Documents(
-                Collection("servers")
-            )
-        )
-    )
+    return client.sendCommand(["eval", "return #redis.pcall('keys', 'servers:*')", "0"]);
 }
 
 /**
@@ -208,13 +202,7 @@ async function getPlayers() {
  * @returns {Promise<object>}
  */
 function getPlayerCount() {
-    return client.query(
-        Count(
-            Documents(
-                Collection("players")
-            )
-        )
-    )
+    return client.sendCommand(["eval", "return #redis.pcall('keys', 'players:*')", "0"]);
 }
 
 module.exports = {

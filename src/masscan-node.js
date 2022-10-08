@@ -16,12 +16,11 @@ class Masscan extends EventEmitter {
      * @param {String} ports Example for all ports: 0-65535. For port 80, and ports from 8000 to 8100 : 80,8000-8100
      * @param {int} max_rate Maximum packet per second
      * @param {String} exclude_file The file containing the IP ranges to exclude from the scan. This one is recommended for scanning the entire internet: https://github.com/robertdavidgraham/masscan/blob/master/data/exclude.conf
-     * @param {String | Array} extra_args Extra arguments to pass to masscan, avoid previouly defined parameters and changing output format
      */
     start(range, ports, max_rate=100, exclude_file=null) {
         let args = `${range} -p${ports} --max-rate ${max_rate} ${exclude_file ? `--excludefile ${exclude_file}` : "--exclude 255.255.255.255"}`;
         console.log(`Start scan with args : ${args}`);
-        this.process = child_process.execFile(this.masscan_path, args.split(" "));
+        this.process = child_process.execFile(this.masscan_path, args.split(" "), {maxBuffer: 1024*1024*1024});
         
         this.process.stdout.on("data", (chunk) => {
             if (chunk.startsWith("Discovered open port")) {

@@ -90,7 +90,7 @@ async function onServerFound(data) {
 
 
 masscan.on("found", async (ip, ports) => {
-    status.getStatus(ip, 25565).then((response) => {
+    status.getStatus(ip, 25565, {timeout: 1500}).then((response) => {
         response.ip = ip;
         response.ping = undefined;
         response.favicon = undefined;
