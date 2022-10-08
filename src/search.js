@@ -27,6 +27,7 @@ function print(msg) {
 
 async function onServerFound(data) {
     let server_exists = await database.serverExists(data.ips).catch(e => {throw e});
+    console.info(`Server ${data.ips} exists: ${server_exists}`);
     // First checking players
     let players;
     if (data.players) {
@@ -37,10 +38,10 @@ async function onServerFound(data) {
         }
         players.forEach(async player => {
             if (!(player.id && player.name) | player.name.startsWith("§")) return;
-            console.debug("Checking player " + player.name);
+            console.info("Checking player " + player.name);
             let player_exists = await database.playerIdExists(player.id).catch(e => {throw e});
             if(!player_exists) {
-                console.debug("Player " + player.name + " does not exist, adding to database");
+                console.info("Player " + player.name + " does not exist, adding to database");
                 player.serversPlayed = [
                     {
                         ip: data.ip,
@@ -48,38 +49,39 @@ async function onServerFound(data) {
                     }];
                 database.addPlayer(player).catch(e => {throw e});
             } else {
-                console.debug("Player " + player.name + " exists, updating database");
+                console.info("Player " + player.name + " exists, updating database");
                 let player_data = await database.getPlayerData(player.id).catch(e => {throw e});
                 let servers_played = player_data.serversPlayed;
                 let server_index = servers_played.findIndex(s => s.ip == data.ip);
                 if(server_index == -1) {
-                    console.debug("Player " + player.name + " has not played on this server before, adding to database");
+                    console.info("Player " + player.name + " has not played on this server before, adding to database");
                     servers_played.push({
                         ip: data.ip,
                         lastTimeOnline: Date.now()
                     });
                     print(`\t[RARE] ${player.name} is a fancy boy he plays on ${servers_played.map(s => s.ip).join(", ")}`);
                 } else {
-                    console.debug("Player " + player.name + " has played on this server before, updating database");
+                    console.info("Player " + player.name + " has played on this server before, updating database");
                     servers_played[server_index].lastTimeOnline = Date.now();
                 }
-                console.debug("Updating player " + player.name + " in database");
+                console.info("Updating player " + player.name + " in database");
                 database.updatePlayerData(player.id, player_data).catch(e => {throw e});
             }
         });
     }
     // Then updating server data
     if(server_exists) {
+        print("\t╘═► Server already exists, updating lastTimeOnline");
         let oldData = await database.getServerByIp(data.ip).catch(e => {throw e});
         if (players) {
             data.players.sample.push(...oldData.players.sample);
         }
 
         database.updateServerData(data.ip, {lastTimeOnline: Date.now(), players: [...new Set(data.players.sample)]}).catch(e => {throw e});
-        print("\t╘═► Server already exists, updating lastTimeOnline");
     } else {
         data.discovered = Date.now();
         data.lastTimeOnline = data.discovered;
+        print("\t╘═► Server does not exist, adding to database");
         database.addServer(data).catch(e => {throw e});
     }
 }
