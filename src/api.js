@@ -8,6 +8,9 @@ app.set('json spaces', 2)
 
 app.get('/servers', async (req, res) => {
     let t0 = Date.now();
+    if (req.modded) {
+        req.modded = req.modded == "true";
+    }
     let servers = await database.getServers(req.query);
     res.json(servers);
     console.log(`[GET] /servers?${JSON.stringify(req.query)} took ${Date.now() - t0}ms`);
