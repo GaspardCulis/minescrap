@@ -30,7 +30,7 @@ client.connect();
  * @returns {Promise<object>}
  */
  function setServer(data) {
-    client.json.set(`servers:${data.ip}`, '$', data);
+    return client.json.set(`servers:${data.ip}`, '$', data);
 }
 
 /**
