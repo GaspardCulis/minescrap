@@ -31,7 +31,7 @@ async function onServerFound(data) {
     // First checking players
     let players = [];
     if (data.players) {
-        players = data.players.sample || [];
+        players = data.players.sample | [];
         data.players.sample = players;
         if (players.length > 0) {
             print("\t╘═► Players online: " + players.map(p => (p | {}).name).join(", "));
