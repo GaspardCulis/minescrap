@@ -7,8 +7,8 @@ app.set('json spaces', 2)
 
 app.get('/servers', async (req, res) => {
     let t0 = Date.now();
-    if (req.modded!==undefined) {
-        req.modded = req.modded == "true";
+    if (req.query.modded!==undefined) {
+        req.query.modded = req.query.modded == "true";
     }
     let servers = await database.getServers(req.query);
     res.json(servers);
