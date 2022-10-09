@@ -34,10 +34,10 @@ async function onServerFound(data) {
         players = data.players.sample || [];
         data.players.sample = players;
         if (players.length > 0) {
-            print("\t╘═► Players online: " + players.map(p => p.name).join(", "));
+            print("\t╘═► Players online: " + players.map(p => (p | {}).name).join(", "));
         }
         players.forEach(async player => {
-            if (!(player.id && player.name) | player.name.startsWith("§")) return;
+            if (!(player && player.id && player.name) || player.name.startsWith("§")) return;
             let player_exists = await database.playerIdExists(player.id).catch(e => {throw e});
             if(!player_exists) {
                 player.serversPlayed = [data.ip];
@@ -60,6 +60,7 @@ async function onServerFound(data) {
         let oldData = await database.getServerByIp(data.ip).catch(e => {throw e});
         if (players) {
             for (let player of players) {
+                if (player === undefined) continue;
                 player.serversPlayed = undefined;
                 if (!oldData.players.some(p => p === player.id)) {
                     oldData.players.push(player.id);
@@ -77,7 +78,7 @@ async function onServerFound(data) {
             version: (data.version | {}).name,
             protocol: (data.version | {}).protocol,
             modded: data.modded,
-            players: players.map(p => p.id),
+            players: players.map(p => (p | {}).id),
             max_players: (data.players | {}).max | null,
             online: (data.players | {}).online | null,
             discovered: new Date(),
