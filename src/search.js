@@ -67,7 +67,7 @@ async function onServerFound(data) {
             }
         }
         oldData.lastTimeOnline = new Date();
-
+        console.log(oldData);
         database.setServer(oldData).catch(e => {throw e});
     } else {
         data.discovered = Date.now();
