@@ -78,8 +78,8 @@ async function onServerFound(data) {
             protocol: data.version.protocol,
             modded: data.modded,
             players: players.map(p => p.id),
-            max_players: data.players.max | null,
-            online: data.players.online | null,
+            max_players: (data.players | {}).max | null,
+            online: (data.players | {}).online | null,
             discovered: new Date(),
             lastTimeOnline: new Date()
         }).catch(e => {throw e});
