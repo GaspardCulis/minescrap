@@ -40,24 +40,15 @@ async function onServerFound(data) {
             if (!(player.id && player.name) | player.name.startsWith("§")) return;
             let player_exists = await database.playerIdExists(player.id).catch(e => {throw e});
             if(!player_exists) {
-                player.serversPlayed = [
-                    {
-                        ip: data.ip,
-                        lastTimeOnline: Date.now()
-                    }];
+                player.serversPlayed = [data.ip];
                 database.setPlayer(player).catch(e => {throw e});
             } else {
                 let player_data = await database.getPlayerData(player.id).catch(e => {throw e});
                 let servers_played = player_data.serversPlayed;
-                let server_index = servers_played.findIndex(s => s.ip == data.ip);
+                let server_index = servers_played.findIndex(s => s == data.ip);
                 if(server_index == -1) {
-                    servers_played.push({
-                        ip: data.ip,
-                        lastTimeOnline: Date.now()
-                    });
-                    print(`\t[RARE] ${player.name} is a fancy boy he plays on ${servers_played.map(s => s.ip).join(", ")}`);
-                } else {
-                    servers_played[server_index].lastTimeOnline = Date.now();
+                    servers_played.push(data.ip);
+                    print(`\t[RARE] ${player.name} is a fancy boy he plays on ${servers_played.join(", ")}`);
                 }
                 database.setPlayer(player_data).catch(e => {throw e});
             }
@@ -70,8 +61,8 @@ async function onServerFound(data) {
         if (players) {
             for (let player in players) {
                 player.serversPlayed = undefined;
-                if (!oldData.players.sample.some(p => p.id === player.id)) {
-                    oldData.players.sample.push(player);
+                if (!oldData.players.sample.some(p => p === player.id)) {
+                    oldData.players.sample.push(player.id);
                 }
             }
         }
@@ -91,6 +82,7 @@ masscan.on("found", async (ip, ports) => {
         response.ip = ip;
         response.ping = undefined;
         response.favicon = undefined;
+        response.modded = false;
         if (response.forgeData || response.modinfo || response.modpackData) {
             response.forgeData = undefined;
             response.modinfo = undefined;
