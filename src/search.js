@@ -60,6 +60,7 @@ async function onServerFound(data) {
         let oldData = await database.getServerByIp(data.ip).catch(e => {throw e});
         if (players) {
             for (let player in players) {
+                console.log(player);
                 player.serversPlayed = undefined;
                 if (!oldData.players.some(p => p === player.id)) {
                     oldData.players.push(player.id);
