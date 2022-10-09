@@ -34,7 +34,7 @@ async function onServerFound(data) {
         players = data.players.sample || [];
         data.players.sample = players;
         if (players.length > 0) {
-            print("\t╘═► Players online: " + players.join(", "));
+            print("\t╘═► Players online: " + players.map(p => (p || {}).name).join(", "));
         }
         players.forEach(async player => {
             if (!(player && player.id && player.name) || player.name.startsWith("§")) return;
