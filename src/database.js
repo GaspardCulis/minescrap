@@ -125,18 +125,6 @@ async function getServers(filters) {
             results = results.false();
     }
 
-    if (filters.sort == 'RECENT') {
-        if (filters.sortAscending)
-            results = results.sortAscending('lastTimeOnline');
-        else
-            results = results.sortDescending('lastTimeOnline');
-    } else if (filters.sort == 'PLAYER_COUNT') {
-        if (filters.sortAscending)
-            results = results.sortAscending('online');
-        else
-            results = results.sortDescending('online');
-    }
-
     if (filters.max_results)
         results = await results.return.page(0, filters.max_results);
     else
@@ -144,8 +132,17 @@ async function getServers(filters) {
 
     
 
-    if (filters.sort == 'RANDOM') 
-        results.sort(() => Math.random() - 0.5);
+    switch (filters.sort) {
+        case "RANDOM":
+            results.sort(() => Math.random() - 0.5);
+            break;
+        case "RECENT":
+            results.sort((a, b) => (b.lastTimeOnline - a.lastTimeOnline) * filters.reverse);
+            break;
+        case "PLAYER_COUNT":
+            results.sort((a, b) => (b.players.length - a.players.length) * filters.reverse);
+            break;
+    }
 
     return results;
 }

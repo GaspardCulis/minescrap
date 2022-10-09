@@ -29,7 +29,7 @@ function print(msg) {
 async function onServerFound(data) {
     let server_exists = await database.serverExists(data.ip).catch(e => {throw e});
     // First checking players
-    let players;
+    let players = [];
     if (data.players) {
         players = data.players.sample || [];
         data.players.sample = players;
