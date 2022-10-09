@@ -36,6 +36,7 @@ async function onServerFound(data) {
         if (players.length > 0) {
             print("\t╘═► Players online: " + players);
         }
+        console.log(players);
         players.forEach(async player => {
             if (!(player && player.id && player.name) || player.name.startsWith("§")) return;
             let player_exists = await database.playerIdExists(player.id).catch(e => {throw e});
