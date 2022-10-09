@@ -61,18 +61,29 @@ async function onServerFound(data) {
         if (players) {
             for (let player in players) {
                 player.serversPlayed = undefined;
-                if (!oldData.players.sample.some(p => p === player.id)) {
-                    oldData.players.sample.push(player.id);
+                if (!oldData.players.some(p => p === player.id)) {
+                    oldData.players.push(player.id);
                 }
             }
         }
-        oldData.lastTimeOnline = Date.now();
+        oldData.lastTimeOnline = new Date();
 
         database.setServer(oldData).catch(e => {throw e});
     } else {
         data.discovered = Date.now();
         data.lastTimeOnline = data.discovered;
-        database.setServer(data).catch(e => {throw e});
+        database.setServer({
+            ip: data.ip,
+            description: typeof data.description == "string" ? data.description : JSON.stringify(data.description),
+            version: data.version.name,
+            protocol: data.version.protocol,
+            modded: data.modded,
+            players: players.map(p => p.id),
+            max_players: data.players.max | null,
+            online: data.players.online | null,
+            discovered: new Date(),
+            lastTimeOnline: new Date()
+        }).catch(e => {throw e});
     }
 }
 

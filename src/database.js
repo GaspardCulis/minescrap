@@ -57,37 +57,20 @@ const playerSchema = new Schema(Player, {
  * Adds/updates server to database
  * @param {Object} data
  * @param {String} data.ip,
- * @param {String | Object | Array} data.description
- * @param {Object} data.version
- * @param {String} data.version.name
- * @param {number} data.version.protocol
+ * @param {String} data.description
+ * @param {String} data.version
+ * @param {number} data.protocol
  * @param {boolean} data.modded
- * @param {Object} data.players
- * @param {number} data.players.max
- * @param {number} data.players.online
- * @param {Array<{id: String, name: String}>} data.players.sample
+ * @param {Array<String>} data.players
+ * @param {number} data.max_players
+ * @param {number} data.online
  * @param {number} data.discovered
  * @param {number} data.lastTimeOnline
  * @returns {Promise<void>}
  */
  async function setServer(data) {
     const sr = client.fetchRepository(serverSchema)
-    let server = sr.createEntity();
-    server.entityId = data.ip;
-    server.ip = data.ip;
-    server.description = typeof data.description == "string" ? data.description : JSON.stringify(data.description);
-    server.version = data.version.name;
-    server.protocol = data.version.protocol;
-    server.modded = data.modded;
-    server.max_players = data.players.max;
-    server.online = data.players.online >= 0 ? data.players.online : 0;
-    server.players = [];
-    for(let player of data.players.sample) {
-        server.players.push(player.id);
-    }
-    server.discovered = data.discovered;
-    server.lastTimeOnline = data.lastTimeOnline;
-    await sr.save(server);
+    await sr.createAndSave(data);
 }
 
 /**
