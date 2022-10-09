@@ -36,7 +36,7 @@ class Server extends Entity{}
 const serverSchema = new Schema(Server, {
     ip: { type: 'string' },
     description: { type: 'text' },
-    version: { type: 'text', sortable: true },
+    version: { type: 'string', sortable: true },
     protocol: { type: 'number', sortable: true },
     modded: { type: 'boolean' },
     max_players: { type: 'number' },
