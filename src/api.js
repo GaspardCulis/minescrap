@@ -43,7 +43,7 @@ app.get('/', async (req, res) => {
                         <li>min_players: number</li>
                         <li>max_results: number</li>
                         <li>sort: Enum(RANDOM, RECENT, PLAYER_COUNT)</li>
-                        <li>reverse: boolean</li>
+                        <li>sortAscending: boolean</li>
                     </ul>
                 </div>
             </li>

@@ -1,8 +1,14 @@
-const redis = require("redis");
+const {createClient} = require("redis");
+const {
+    Entity,
+    Schema,
+    Repository,
+    Client
+} = require("redis-om");
 
-require('dotenv').config()
+require('dotenv').config();
 
-const client = redis.createClient({
+const redis = createClient({
     socket: {
         host: process.env.REDIS_HOST,
         port: process.env.REDIS_PORT
@@ -11,26 +17,77 @@ const client = redis.createClient({
     password: process.env.REDIS_PASSWORD
 })
 
-client.connect();
+const client = new Client();
+
+async function connectClient() {
+    if (!client.isOpen()) {
+        await redis.connect();
+        await client.use(redis);
+        await client.fetchRepository(serverSchema).createIndex();
+        await client.fetchRepository(playerSchema).createIndex();
+        console.info("Database is ready.");
+    }
+    return client;
+}
+
+connectClient();
+
+class Server extends Entity{}
+const serverSchema = new Schema(Server, {
+    ip: { type: 'string' },
+    description: { type: 'text' },
+    version: { type: 'text', sortable: true },
+    protocol: { type: 'number', sortable: true },
+    modded: { type: 'boolean' },
+    max_players: { type: 'number' },
+    online: { type: 'number', sortable: true },
+    players: { type: 'string[]' },
+    discovered: { type: 'date' },
+    lastTimeOnline: { type: 'date' }
+})
+
+class Player extends Entity {}
+const playerSchema = new Schema(Player, {
+    id: { type: 'string' },
+    name: { type: 'text', indexed: true },
+    serversPlayed: { type: 'string[]' }
+});
 
 /**
- * Adds new server to database
+ * Adds/updates server to database
  * @param {Object} data
  * @param {String} data.ip,
  * @param {String | Object | Array} data.description
  * @param {Object} data.version
  * @param {String} data.version.name
  * @param {number} data.version.protocol
+ * @param {boolean} data.modded
  * @param {Object} data.players
  * @param {number} data.players.max
  * @param {number} data.players.online
- * @param {Array} data.players.sample
+ * @param {Array<{id: String, name: String}>} data.players.sample
  * @param {number} data.discovered
  * @param {number} data.lastTimeOnline
- * @returns {Promise<object>}
+ * @returns {Promise<void>}
  */
- function setServer(data) {
-    return client.json.set(`servers:${data.ip}`, '$', data);
+ async function setServer(data) {
+    const sr = client.fetchRepository(serverSchema)
+    let server = sr.createEntity();
+    server.entityId = data.ip;
+    server.ip = data.ip;
+    server.description = typeof data.description == "string" ? data.description : JSON.stringify(data.description);
+    server.version = data.version.name;
+    server.protocol = data.version.protocol;
+    server.modded = data.modded;
+    server.max_players = data.players.max;
+    server.online = data.players.online >= 0 ? data.players.online : 0;
+    server.players = [];
+    for(let player of data.players.sample) {
+        server.players.push(player.id);
+    }
+    server.discovered = data.discovered;
+    server.lastTimeOnline = data.lastTimeOnline;
+    await sr.save(server);
 }
 
 /**
@@ -38,16 +95,16 @@ client.connect();
  * @param {String} server_ip
  * @returns {Promise<boolean>}
  */
-function serverExists(server_ip) {
-    return client.exists(`servers:${server_ip}`);
+async function serverExists(server_ip) {
+    return client.execute(['EXISTS', `Server:${server_ip}`]);
 }
 
 /**
  * Returns the total number of servers in the database
- * @returns {Promise<object>}
+ * @returns {Promise<number>}
  */
-function getServerCount() {
-    return client.sendCommand(["eval", "return #redis.pcall('keys', 'servers:*')", "0"]);
+async function getServerCount() {
+    return client.fetchRepository(serverSchema).search().count();
 }
 
 /**
@@ -55,7 +112,7 @@ function getServerCount() {
  * @returns {Promise<object>}
  */
 async function getServerByIp(ip) {
-    return client.json.get(`servers:${ip}`);
+    return redis.json.get(`Server:${ip}`);
 }
 
 /**
@@ -65,89 +122,48 @@ async function getServerByIp(ip) {
  * @param {String} filters.min_players
  * @param {number} filters.max_results
  * @param {('RANDOM'|'RECENT'|'PLAYER_COUNT')} filters.sort
- * @param {boolean} filters.reverse
+ * @param {boolean} filters.sortAscending
  */
 async function getServers(filters) {
     filters = filters || {};
-    filters.version = filters.version ? filters.version.toUpperCase() : "";
+    filters.sort = filters.sort ? filters.sort.toUpperCase() : undefined;
     filters.reverse = (filters.reverse || false) ? -1 : 1;
     filters.max_results = parseInt(filters.max_results);
-    const version_filter = ContainsStr(
-                                Select(['data', 'version', 'name'], Var('doc'), ""), 
-                                filters.version
-                            )
-    const player_count_filter = GTE(
-                                Select(['data', 'players', 'online'], Var('doc'), null), 
-                                filters.min_players
-                            )
-
-    let modded_filter =  Equals(Select(['data', 'modded'], Var('doc'), null), true);
-    let filter;
-    if (filters.version && filters.min_players) {
-        console.log("Filtering version and player count")
-        filter = And(version_filter,player_count_filter);
-    } else if (filters.min_players) {
-        console.log("Filtering player count")
-        filter = player_count_filter;
-    } else if (filters.version) {
-        console.log("Filtering version")
-        filter = version_filter;
-    } else if (filters.modded !== undefined) {
-        console.log("Filtering modded");
-        if (filters.modded === false) {
-            modded_filter = Not(modded_filter);
-            console.log("Psartek");
-        }
-        if (!filter) filter = modded_filter;
-        else filter = And(filter, modded_filter);
-    } else {
-        console.log("No filters")
-        filter = false;
-    }
     
-    let results;
-
-    if (filter) {
-        results = await client.query(
-            Map(
-                Paginate(
-
-                        Filter(
-                            Documents(Collection('servers')), 
-                            Lambda('x', Let({
-                                    doc: Get(Var('x'))
-                                }, 
-                                filter
-                            )
-                            )
-                        ), { size: filters.max_results || await getServerCount().catch(e => {throw e}) - 1 }
-                ), Lambda('x', Get(Var('x')))  
-            )
-        ).catch(e => {throw e});
-    } else {
-        results = await client.query(
-            Map(
-                Paginate(
-                    Documents(Collection('servers')),
-                    { size: filters.max_results || await getServerCount() - 1 }
-                ), Lambda('x', Get(Var('x')))
-            )
-        , {}).catch(e => {throw e});
+    let results = client.fetchRepository(serverSchema).search().where('online').greaterThanOrEqualTo(filters.min_players | 0);
+    
+    if (filters.version) 
+        results = results.and('version').match(filters.version);
+    if (filters.modded !== undefined) {
+        results = results.and('modded')
+        if (filters.modded)
+            results = results.true();
+        else
+            results = results.false();
     }
 
-    results = results.data.map((server) => server.data);
-
-    switch (filters.sort) {
-        case "RANDOM":
-            results.sort(() => Math.random() - 0.5);
-            break;
-        case "RECENT":
-            results.sort((a, b) => (b.lastTimeOnline - a.lastTimeOnline) * filters.reverse);
-            break;
-        case "PLAYER_COUNT":
-            results.sort((a, b) => ((b.players || {sample: []}).sample.length - (a.players || {sample: []}).sample.length) * filters.reverse);
-            break;
+    if (filters.sort == 'RECENT') {
+        if (filters.sortAscending)
+            results = results.sortAscending('lastTimeOnline');
+        else
+            results = results.sortDescending('lastTimeOnline');
+    } else if (filters.sort == 'PLAYER_COUNT') {
+        if (filters.sortAscending)
+            results = results.sortAscending('online');
+        else
+            results = results.sortDescending('online');
     }
+
+    if (filters.max_results)
+        results = await results.return.page(0, filters.max_results);
+    else
+        results = await results.return.all();
+
+    
+
+    if (filters.sort == 'RANDOM') 
+        results.sort(() => Math.random() - 0.5);
+
     return results;
 }
 
@@ -156,11 +172,14 @@ async function getServers(filters) {
  * @param {Object} data
  * @param {String} data.id
  * @param {String} data.name
- * @param {Array<{ip: String, lastTimeOnline: number}>} data.serversPlayed
- * @returns {Promise<object>}
+ * @param {Array<String>} data.serversPlayed
+ * @returns {Promise<void>}
  */
- function setPlayer(data) {
-    return client.json.set(`players:${data.id}`, '$', data);
+ async function setPlayer(data) {
+    const sr = client.fetchRepository(playerSchema)
+    let player = sr.createEntity(data);
+    player.entityId = data.id;
+    await sr.save(player);
 }
 
 /**
@@ -169,7 +188,7 @@ async function getServers(filters) {
  * @returns {Promise<boolean>}
  */
 function playerIdExists(player_id) {
-    return client.exists(player_id);
+    return client.execute(['EXISTS', `Player:${player_id}`]);
 }
 
 /**
@@ -178,7 +197,7 @@ function playerIdExists(player_id) {
  * @returns {Promise<object>} Player data is in the root data property
  */
 async function getPlayerData(player_id) {
-    return client.json.get(`players:${player_id}`);
+    return redis.json.get(`Player:${player_id}`);
 }
 
 /**
@@ -186,15 +205,7 @@ async function getPlayerData(player_id) {
  * @returns {Promise<object>}
  */
 async function getPlayers() {
-    let players = await client.query(
-        Map(
-            Paginate(
-                Documents(Collection("players")),
-                { size: await getServerCount() - 1 }
-            ), Lambda('x', Get(Var('x')))
-        )
-    ).catch(e => {throw e});
-    return players.data.map((player) => player.data);
+    return client.fetchRepository(playerSchema).search().return.all();
 }
 
 /**
@@ -202,7 +213,7 @@ async function getPlayers() {
  * @returns {Promise<object>}
  */
 function getPlayerCount() {
-    return client.sendCommand(["eval", "return #redis.pcall('keys', 'players:*')", "0"]);
+    return client.fetchRepository(playerSchema).search().count();
 }
 
 module.exports = {
@@ -215,5 +226,5 @@ module.exports = {
     getPlayerCount: getPlayerCount,
     getServers: getServers,
     getServerByIp: getServerByIp,
-    getPlayers: getPlayers
+    getPlayers: getPlayers,
 }
