@@ -36,7 +36,7 @@ class Server extends Entity{}
 const serverSchema = new Schema(Server, {
     ip: { type: 'string' },
     description: { type: 'text' },
-    version: { type: 'string', sortable: true },
+    version: { type: 'text' },
     protocol: { type: 'number', sortable: true },
     modded: { type: 'boolean' },
     max_players: { type: 'number' },
@@ -118,7 +118,7 @@ async function getServers(filters) {
     let results = client.fetchRepository(serverSchema).search().where('online').greaterThanOrEqualTo(filters.min_players | 0);
     
     if (filters.version) 
-        results = results.and('version').matches(`*${filters.version}*`);
+        results = results.and('version').matchExact(`*${filters.version}*`);
     if (filters.modded !== undefined) {
         results = results.and('modded')
         if (filters.modded)
