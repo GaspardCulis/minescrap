@@ -36,8 +36,6 @@ async function onServerFound(data) {
         if (players.length > 0) {
             print("\t╘═► Players online: " + players);
         }
-        console.log(data);
-        console.log(players);
         players.forEach(async player => {
             if (!(player && player.id && player.name) || player.name.startsWith("§")) return;
             let player_exists = await database.playerIdExists(player.id).catch(e => {throw e});
@@ -77,12 +75,12 @@ async function onServerFound(data) {
         database.setServer({
             ip: data.ip,
             description: typeof data.description == "string" ? data.description : JSON.stringify(data.description),
-            version: (data.version | {}).name,
-            protocol: (data.version | {}).protocol,
+            version: (data.version || {}).name,
+            protocol: (data.version || {}).protocol,
             modded: data.modded,
-            players: players.map(p => (p | {}).id),
-            max_players: (data.players | {}).max | null,
-            online: (data.players | {}).online | null,
+            players: players.map(p => (p || {}).id),
+            max_players: (data.players || {}).max || null,
+            online: (data.players || {}).online || null,
             discovered: new Date(),
             lastTimeOnline: new Date()
         }).catch(e => {throw e});
