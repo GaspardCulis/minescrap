@@ -74,8 +74,8 @@ async function onServerFound(data) {
         database.setServer({
             ip: data.ip,
             description: typeof data.description == "string" ? data.description : JSON.stringify(data.description),
-            version: data.version.name,
-            protocol: data.version.protocol,
+            version: (data.version | {}).name,
+            protocol: (data.version | {}).protocol,
             modded: data.modded,
             players: players.map(p => p.id),
             max_players: (data.players | {}).max | null,
