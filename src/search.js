@@ -68,7 +68,12 @@ async function onServerFound(data) {
         print("\t╘═► Server already exists, updating lastTimeOnline");
         let oldData = await database.getServerByIp(data.ip).catch(e => {throw e});
         if (players) {
-            oldData.players.sample.push(...data.players.sample);
+            for (let player in players) {
+                player.serversPlayed = undefined;
+                if (!oldData.players.sample.some(p => p.id === player.id)) {
+                    oldData.players.sample.push(player);
+                }
+            }
         }
         oldData.lastTimeOnline = Date.now();
 
