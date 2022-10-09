@@ -118,7 +118,7 @@ async function getServers(filters) {
     let results = client.fetchRepository(serverSchema).search().where('online').greaterThanOrEqualTo(filters.min_players | 0);
     
     if (filters.version) 
-        results = results.and('version').matchExact(`*${filters.version}*`);
+        results = results.and('version').match(`*${filters.version}*`);
     if (filters.modded !== undefined) {
         results = results.and('modded')
         if (filters.modded)
