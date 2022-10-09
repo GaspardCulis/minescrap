@@ -2,6 +2,7 @@ const {Masscan} = require("./masscan-node");
 const status = require("mc-server-status");
 const database = require("./database");
 const yargs = require('yargs');
+const { exit } = require("yargs");
 
 const argv = yargs
   .option('rate', {
@@ -98,6 +99,11 @@ masscan.on("found", async (ip, ports) => {
 
 masscan.on("error", (msg) => {
     console.log(msg);
+})
+
+masscan.on("finished", () => {
+    console.log("Congrats, you scanned the entire internet !");
+    exit(0);
 })
 
 masscan.start("0.0.0.0/0", "25565", argv.rate ? argv.rate : 10000, "data/exclude.conf");
