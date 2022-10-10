@@ -29,31 +29,29 @@ function print(msg) {
 async function onServerFound(data) {
     let server_exists = await database.serverExists(data.ip).catch(e => {throw e});
     // First checking players
-    let players = [];
-    if (data.players) {
-        players = data.players.sample || [];
-        data.players.sample = players;
-        if (players.length > 0) {
-            print("\t╘═► Players online: " + players.map(p => (p || {}).name).join(", "));
-        }
-        players.forEach(async player => {
-            if (!(player && player.id && player.name) || player.name.startsWith("§")) return;
-            let player_exists = await database.playerIdExists(player.id).catch(e => {throw e});
-            if(!player_exists) {
-                player.serversPlayed = [data.ip];
-                database.setPlayer(player).catch(e => {throw e});
-            } else {
-                let player_data = await database.getPlayerData(player.id).catch(e => {throw e});
-                let servers_played = player_data.serversPlayed;
-                let server_index = servers_played.findIndex(s => s == data.ip);
-                if(server_index == -1) {
-                    servers_played.push(data.ip);
-                    print(`\t[RARE] ${player.name} is a fancy boy he plays on ${servers_played.join(", ")}`);
-                }
-                database.setPlayer(player_data).catch(e => {throw e});
-            }
-        });
+    let players = (data.players ? data.players : {}).sample || [];
+    players = players.filter(p => (p && p.id && p.id.length > 10 && p.name && !p.startsWith("§")));
+
+    if (players.length > 0) {
+        print("\t╘═► Players online: " + players.map(p => (p || {}).name).join(", "));
     }
+    players.forEach(async player => {
+        let player_exists = await database.playerIdExists(player.id).catch(e => {throw e});
+        if(!player_exists) {
+            player.serversPlayed = [data.ip];
+            database.setPlayer(player).catch(e => {throw e});
+        } else {
+            let player_data = await database.getPlayerData(player.id).catch(e => {throw e});
+            let servers_played = player_data.serversPlayed;
+            let server_index = servers_played.findIndex(s => s == data.ip);
+            if(server_index == -1) {
+                servers_played.push(data.ip);
+                print(`\t[RARE] ${player.name} is a fancy boy he plays on ${servers_played.join(", ")}`);
+            }
+            database.setPlayer(player_data).catch(e => {throw e});
+        }
+    });
+    
     // Then updating server data
     let discovered = new Date()
     if(server_exists) {
@@ -81,7 +79,7 @@ async function onServerFound(data) {
         version: (data.version ? data.version : {}).name || null,
         protocol: (data.version ? data.version : {}).protocol || null,
         modded: data.modded,
-        players: players.map(p => (p ? p : {}).id || ""),
+        players: players.map(p => p.id),
         max_players: (data.players ? data.players : {}).max || null,
         online: (data.players ? data.players : {}).online || null,
         discovered: discovered,
