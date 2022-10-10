@@ -30,7 +30,7 @@ async function onServerFound(data) {
     let server_exists = await database.serverExists(data.ip).catch(e => {throw e});
     // First checking players
     let players = (data.players ? data.players : {}).sample || [];
-    players = players.filter(p => (p && p.id && p.id.length > 10 && p.name && !p.startsWith("§")));
+    players = players.filter(p => (p && p.id && p.id.length > 10 && p.name && !p.name.startsWith("§")));
 
     if (players.length > 0) {
         print("\t╘═► Players online: " + players.map(p => (p || {}).name).join(", "));
