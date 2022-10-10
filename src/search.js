@@ -70,23 +70,24 @@ async function onServerFound(data) {
             }
         }
         discovered = oldData.discovered;
+        players = oldData.players;
         database.setServer(oldData).catch(e => {throw e});
-    } else {
-        data.discovered = Date.now();
-        data.lastTimeOnline = data.discovered;
-        database.setServer({
-            ip: data.ip,
-            description: typeof data.description == "string" ? data.description : JSON.stringify(data.description),
-            version: (data.version ? data.version : {}).name || null,
-            protocol: (data.version ? data.version : {}).protocol || null,
-            modded: data.modded,
-            players: players.map(p => (p ? p : {}).id || ""),
-            max_players: (data.players ? data.players : {}).max || null,
-            online: (data.players ? data.players : {}).online || null,
-            discovered: discovered,
-            lastTimeOnline: new Date()
-        }).catch(e => {throw e});
-    }
+    } 
+    data.discovered = discovered;
+    data.lastTimeOnline = Date.now();
+    database.setServer({
+        ip: data.ip,
+        description: typeof data.description == "string" ? data.description : JSON.stringify(data.description),
+        version: (data.version ? data.version : {}).name || null,
+        protocol: (data.version ? data.version : {}).protocol || null,
+        modded: data.modded,
+        players: players.map(p => (p ? p : {}).id || ""),
+        max_players: (data.players ? data.players : {}).max || null,
+        online: (data.players ? data.players : {}).online || null,
+        discovered: discovered,
+        lastTimeOnline: new Date()
+    }).catch(e => {throw e});
+    
 }
 
 
