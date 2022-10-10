@@ -61,6 +61,7 @@ async function onServerFound(data) {
             player.serversPlayed = undefined;
             if (!oldData.players.some(p => p === player.id)) {
                 oldData.players.push(player.id);
+                console.log(oldData.players);
                 print(`\t╘═► ${player.name} is a new player on that server (${player.id})`);
             }
         }
