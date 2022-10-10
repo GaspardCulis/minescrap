@@ -78,7 +78,7 @@ async function onServerFound(data) {
             version: (data.version || {}).name,
             protocol: (data.version || {}).protocol,
             modded: data.modded,
-            players: players.map(p => (p || {}).id),
+            players: players.map(p => (p || {}).id || ""),
             max_players: (data.players || {}).max || null,
             online: (data.players || {}).online || null,
             discovered: new Date(),
