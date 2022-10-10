@@ -60,10 +60,11 @@ async function onServerFound(data) {
         let oldData = await database.getServerByIp(data.ip).catch(e => {throw e});
         if (players) {
             for (let player of players) {
-                if (player === undefined) continue;
+                if (player === undefined || !player.id) continue;
                 player.serversPlayed = undefined;
                 if (!oldData.players.some(p => p === player.id)) {
                     oldData.players.push(player.id);
+                    print(`\t╘═► ${player.name} is a new player on that server`);
                 }
             }
         }
