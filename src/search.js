@@ -65,10 +65,11 @@ async function onServerFound(data) {
             }
         }
         discovered = oldData.discovered;
-        players = oldData.players.filter(p => (p && p.length > 10));
+        players = oldData.players.filter(p => (p && p.length > 10)).map(p => {return {id: p}});
     } 
     data.discovered = discovered;
     data.lastTimeOnline = Date.now();
+    let online = (data.players || {}).online;
     database.setServer({
         ip: data.ip,
         description: typeof data.description == "string" ? data.description : JSON.stringify(data.description),
@@ -77,7 +78,7 @@ async function onServerFound(data) {
         modded: data.modded,
         players: players.map(p => p.id),
         max_players: (data.players ? data.players : {}).max || null,
-        online: (data.players ? data.players : {}).online || null,
+        online: online !==undefined ? online : null,
         discovered: discovered,
         lastTimeOnline: new Date()
     }).catch(e => {throw e});
