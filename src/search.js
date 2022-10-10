@@ -55,6 +55,7 @@ async function onServerFound(data) {
         });
     }
     // Then updating server data
+    let discovered = new Date()
     if(server_exists) {
         print("\t╘═► Server already exists, updating lastTimeOnline");
         let oldData = await database.getServerByIp(data.ip).catch(e => {throw e});
@@ -68,7 +69,7 @@ async function onServerFound(data) {
                 }
             }
         }
-        oldData.lastTimeOnline = new Date();
+        discovered = oldData.discovered;
         database.setServer(oldData).catch(e => {throw e});
     } else {
         data.discovered = Date.now();
@@ -76,13 +77,13 @@ async function onServerFound(data) {
         database.setServer({
             ip: data.ip,
             description: typeof data.description == "string" ? data.description : JSON.stringify(data.description),
-            version: (data.version || {}).name,
-            protocol: (data.version || {}).protocol,
+            version: (data.version ? data.version : {}).name || null,
+            protocol: (data.version ? data.version : {}).protocol || null,
             modded: data.modded,
-            players: players.map(p => (p || {}).id || ""),
-            max_players: (data.players || {}).max || null,
-            online: (data.players || {}).online || null,
-            discovered: new Date(),
+            players: players.map(p => (p ? p : {}).id || ""),
+            max_players: (data.players ? data.players : {}).max || null,
+            online: (data.players ? data.players : {}).online || null,
+            discovered: discovered,
             lastTimeOnline: new Date()
         }).catch(e => {throw e});
     }
