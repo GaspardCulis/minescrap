@@ -66,7 +66,6 @@ async function onServerFound(data) {
         }
         discovered = oldData.discovered;
         players = oldData.players.filter(p => (p && p.length > 10));
-        database.setServer(oldData).catch(e => {throw e});
     } 
     data.discovered = discovered;
     data.lastTimeOnline = Date.now();
