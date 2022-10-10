@@ -69,6 +69,7 @@ const playerSchema = new Schema(Player, {
  * @returns {Promise<void>}
  */
  async function setServer(data) {
+    console.log(data);
     const sr = client.fetchRepository(serverSchema);
     let server = sr.createEntity(data);
     server.entityId = data.ip;
