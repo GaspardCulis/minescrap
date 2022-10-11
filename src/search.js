@@ -34,7 +34,7 @@ async function onServerFound(data) {
     players = players.filter(p => (p && p.id && p.id.length > 10 && p.name && !p.name.startsWith("§")));
 
     if (players.length > 0) {
-        print("\t╘═► Players online: " + players.map(p => clc.yellow((p || {}).name)).join(", "));
+        print("\t╘═► Players online: " + players.map(p => clc.yellowBright((p || {}).name)).join(", "));
     }
     players.forEach(async player => {
         let player_exists = await database.playerIdExists(player.id).catch(e => {throw e});
@@ -47,7 +47,7 @@ async function onServerFound(data) {
             let server_index = servers_played.findIndex(s => s == data.ip);
             if(server_index == -1) {
                 servers_played.push(data.ip);
-                print(`\t${clc.magenta.underline("[RARE]")} ${clc.yellow(player.name)} is a fancy boy he plays on ${clc.redBright(servers_played.join(", "))}`);
+                print(`\t${clc.magenta.underline("[RARE]")} ${clc.yellowBright(player.name)} is a fancy boy he plays on ${clc.redBright(servers_played.join(", "))}`);
             }
             database.setPlayer(player_data).catch(e => {throw e});
         }
@@ -62,7 +62,7 @@ async function onServerFound(data) {
             player.serversPlayed = undefined;
             if (!oldData.players.some(p => p === player.id)) {
                 oldData.players.push(player.id);
-                print(`\t╘═► ${clc.yellow(player.name)} is a new player on that server (${clc.blackBright(player.id)})`);
+                print(`\t╘═► ${clc.yellowBright(player.name)} is a new player on that server (${clc.blackBright(player.id)})`);
             }
         }
         discovered = oldData.discovered;
