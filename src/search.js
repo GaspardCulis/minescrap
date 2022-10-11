@@ -3,6 +3,7 @@ const status = require("mc-server-status");
 const database = require("./database");
 const yargs = require('yargs');
 const { exit } = require("yargs");
+var clc = require("cli-color");
 
 const argv = yargs
   .option('rate', {
@@ -33,7 +34,7 @@ async function onServerFound(data) {
     players = players.filter(p => (p && p.id && p.id.length > 10 && p.name && !p.name.startsWith("§")));
 
     if (players.length > 0) {
-        print("\t╘═► Players online: " + players.map(p => (p || {}).name).join(", "));
+        print("\t╘═► Players online: " + players.map(p => clc.yellow((p || {}).name)).join(", "));
     }
     players.forEach(async player => {
         let player_exists = await database.playerIdExists(player.id).catch(e => {throw e});
@@ -46,7 +47,7 @@ async function onServerFound(data) {
             let server_index = servers_played.findIndex(s => s == data.ip);
             if(server_index == -1) {
                 servers_played.push(data.ip);
-                print(`\t[RARE] ${player.name} is a fancy boy he plays on ${servers_played.join(", ")}`);
+                print(`\t${clc.magenta.underline("[RARE]")} ${clc.yellow(player.name)} is a fancy boy he plays on ${clc.redBright(servers_played.join(", "))}`);
             }
             database.setPlayer(player_data).catch(e => {throw e});
         }
@@ -61,7 +62,7 @@ async function onServerFound(data) {
             player.serversPlayed = undefined;
             if (!oldData.players.some(p => p === player.id)) {
                 oldData.players.push(player.id);
-                print(`\t╘═► ${player.name} is a new player on that server (${player.id})`);
+                print(`\t╘═► ${clc.yellow(player.name)} is a new player on that server (${clc.blackBright(player.id)})`);
             }
         }
         discovered = oldData.discovered;
@@ -98,7 +99,7 @@ masscan.on("found", async (ip, ports) => {
             response.modpackData = undefined;
             response.modded = true;
         }
-        print(`Found : ${ip} on port ${ports}   |   rate=${masscan.rate} percentage=${masscan.percentage}%`);
+        print(`Found : ${clc.redBright(ip)} on port ${ports}   |   rate=${masscan.rate} percentage=${masscan.percentage}%`);
         onServerFound(response).catch(e => {throw e});
     }).catch((reason) => {});
 })
@@ -108,7 +109,7 @@ masscan.on("error", (msg) => {
 })
 
 masscan.on("finished", () => {
-    console.log("Congrats, you scanned the entire internet !");
+    console.log(clc.greenBright("Congrats, you scanned the entire internet !"));
     exit(0);
 })
 
