@@ -39,6 +39,8 @@ const serverSchema = new Schema(Server, {
     version: { type: 'text' },
     protocol: { type: 'number', sortable: true },
     modded: { type: 'boolean' },
+    allow_crack: { type: 'boolean' },
+    whitelist: { type: 'boolean' },
     max_players: { type: 'number' },
     online: { type: 'number', sortable: true },
     players: { type: 'string[]' },
@@ -61,6 +63,8 @@ const playerSchema = new Schema(Player, {
  * @param {String} data.version
  * @param {number} data.protocol
  * @param {boolean} data.modded
+ * @param {boolean} data.allow_crack
+ * @param {boolean} data.whitelist
  * @param {Array<String>} data.players
  * @param {number} data.max_players
  * @param {number} data.online
