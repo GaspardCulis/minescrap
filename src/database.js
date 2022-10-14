@@ -187,11 +187,20 @@ async function getPlayerData(player_id) {
 }
 
 /**
- * 
+ * @param {Object} filters
+ * @param {String} filters.uuid
+ * @param {boolean} filters.username
  * @returns {Promise<object>}
  */
-async function getPlayers() {
-    return client.fetchRepository(playerSchema).search().return.all();
+async function getPlayers(filters) {
+    if(filters.uuid) {
+        return getPlayerData(filters.uuid)
+    }
+    const search = client.fetchRepository(playerSchema).search();
+    if (filters.username) {
+        search = search.where('name').match(filters.username);
+    }
+    return search.return.all();
 }
 
 /**
