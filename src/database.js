@@ -196,7 +196,7 @@ async function getPlayers(filters) {
     if(filters.uuid) {
         return getPlayerData(filters.uuid)
     }
-    const search = client.fetchRepository(playerSchema).search();
+    let search = client.fetchRepository(playerSchema).search();
     if (filters.username) {
         search = search.where('name').match(filters.username);
     }

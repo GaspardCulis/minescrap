@@ -52,6 +52,11 @@ app.get('/', async (req, res) => {
                     <h4>/players</h4>
                     <p>Get a list of players</p>
                     <p>Method: GET</p>
+                    <p>Parameters:</p>
+                    <ul>
+                        <li>username: string</li>
+                        <li>uuid: string</li>
+                    </ul>
                 </div>
             </li>
         </ul>
