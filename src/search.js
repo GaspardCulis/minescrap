@@ -1,4 +1,4 @@
-const {Masscan} = require("./masscan-node");
+const {Masscan} = require("node-masscan");
 const status = require("mc-server-status");
 const database = require("./database");
 const yargs = require('yargs');
@@ -88,8 +88,7 @@ async function onServerFound(data) {
     
 }
 
-
-masscan.on("found", async (ip, ports) => {
+masscan.on('found', async (ip, ports) => {
     status.getStatus(ip, 25565, {timeout: 1500}).then((response) => {
         response.ip = ip;
         response.ping = undefined;
@@ -110,7 +109,7 @@ masscan.on("error", (msg) => {
     console.log(msg);
 })
 
-masscan.on("finished", () => {
+masscan.on("completed", () => {
     console.log(clc.greenBright("Congrats, you scanned the entire internet !"));
     exit(0);
 })
