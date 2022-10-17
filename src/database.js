@@ -112,12 +112,18 @@ async function getServerByIp(ip) {
  * @param {number} filters.max_results
  * @param {('RANDOM'|'RECENT'|'PLAYER_COUNT')} filters.sort
  * @param {boolean} filters.sortAscending
+ * @param { String } filters.ip
+ * @returns {Promise< Array< {ip: String, description: String, version: String, protocol: number, modded: boolean, allow_crack: boolean, whitelist: boolean, online: number, players: Array<String>, discovered: Date, lastTimeOnline: Date} > >}
  */
 async function getServers(filters) {
     filters = filters || {};
     filters.sort = filters.sort ? filters.sort.toUpperCase() : undefined;
     filters.reverse = (filters.reverse || false) ? -1 : 1;
     filters.max_results = parseInt(filters.max_results);
+
+    if (filters.ip) {
+        return [await getServerByIp(filters.ip)];
+    }
     
     let results = client.fetchRepository(serverSchema).search().where('online').greaterThanOrEqualTo(filters.min_players | 0);
     

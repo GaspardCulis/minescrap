@@ -44,6 +44,7 @@ app.get('/', async (req, res) => {
                         <li>max_results: number</li>
                         <li>sort: Enum(RANDOM, RECENT, PLAYER_COUNT)</li>
                         <li>sortAscending: boolean</li>
+                        <li>ip: string</li>
                     </ul>
                 </div>
             </li>
