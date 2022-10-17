@@ -109,7 +109,7 @@ masscan.on("error", (msg) => {
     console.log(msg);
 })
 
-masscan.on("completed", () => {
+masscan.on('complete', () => {
     console.log(clc.greenBright("Congrats, you scanned the entire internet !"));
     exit(0);
 })
