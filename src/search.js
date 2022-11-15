@@ -8,7 +8,7 @@ var clc = require("cli-color");
 const argv = yargs
   .option('rate', {
     alias: 'r',
-    description: 'The masscar max rate',
+    description: 'The masscan max rate',
     type: 'number'
   })
   .option('verbose', {
@@ -19,7 +19,7 @@ const argv = yargs
   .help()
   .alias('help', 'h').argv;
 
-let masscan = new Masscan();
+let masscan = new Masscan(process.env.MASSCAN_PATH);
 
 function print(msg) {
     if (argv.verbose) {
