@@ -10,6 +10,19 @@ Features :
 - 🌐 Express API to query found servers and players with a wide variety of filters.
 - 🎨 Fancy colored command line outputs.
 
+Installation & Setup :
+----------------------
+
+```bash
+git clone https://github.com/GaspardCulis/minescrap.git
+cd minescrap
+npm i
+```
+
+You'll need a Redis database with RedisJSON and RediSearch modules installed.
+
+Edit and rename the [.env.example](.env.example) to .env to setup the Redis URL and credentials.
+
 Usage :
 -------
 ### Run a search :
