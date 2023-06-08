@@ -46,7 +46,11 @@ export default class Supabase extends AbstractDatabase {
 	}
 
 	async getServerCount(): Promise<number> {
-		return (await this.client.from("servers").select("ip")).count!;
+		return (
+			await this.client
+				.from("servers")
+				.select("*", { count: "exact", head: true })
+		).count as number;
 	}
 
 	async getServerByIp(ip: string): Promise<ServerData> {
@@ -157,7 +161,11 @@ export default class Supabase extends AbstractDatabase {
 		return (await query).data!.map((r) => this.DBPlayerToLocal(r));
 	}
 	async getPlayerCount(): Promise<number> {
-		return (await this.client.from("players").select("id")).count!;
+		return (
+			await this.client
+				.from("players")
+				.select("*", { count: "exact", head: true })
+		).count as number;
 	}
 
 	private async DBServerToLocal(
