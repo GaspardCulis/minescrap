@@ -1,24 +1,31 @@
 {
   "name": "mcservfinder",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Finds server by bruteforce",
   "main": "search.js",
   "scripts": {
     "search": "node src/search.js",
     "api": "node src/api.js"
   },
-  "author": "MOI",
+  "author": "GaspardCulis",
   "license": "ISC",
   "dependencies": {
     "@fauna-labs/fauna-schema-migrate": "^2.2.1",
     "@redis/json": "^1.0.4",
+    "@supabase/supabase-js": "^2.24.0",
     "cli-color": "^2.0.3",
     "cli-progress": "^3.11.1",
     "express": "^4.18.1",
     "mc-server-status": "^2.0.2",
-    "node-masscan": "^1.0.1",
+    "node-masscan": "^1.1.2",
     "redis": "^4.3.1",
     "redis-om": "^0.3.6",
     "yargs": "^17.6.0"
+  },
+  "devDependencies": {
+    "@types/cli-color": "^2.0.2",
+    "@types/express": "^4.17.17",
+    "@types/yargs": "^17.0.24",
+    "typescript": "^5.1.3"
   }
 }

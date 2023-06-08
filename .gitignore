@@ -3,3 +3,4 @@ package-lock.json
 get_DB.bat
 .env
 paused.conf
+dist/
