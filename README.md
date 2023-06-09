@@ -1,8 +1,13 @@
-# minescrap
+<div align="center">
+  <h1>Minescrap</h1>
 
+![MinescrapStats](https://dffgmelmvcyznupdsevg.supabase.co/functions/v1/stats)
+  
 A minecraft server finder inspired by Copenheimer.
 
 *hippity hoppity, your server's ip is now my property*
+
+</div>
 
 Features :
 ----------
