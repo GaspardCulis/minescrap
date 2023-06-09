@@ -6,6 +6,7 @@ import Supabase from "./db/Supabase";
 import { exit } from "yargs";
 import { ServerData } from "./types/database";
 import { response } from "express";
+import AbstractDatabase from "./db/AstractDatabase";
 
 require("dotenv").config();
 
@@ -24,11 +25,14 @@ const argv = yargs(process.argv.slice(2))
 	.alias("help", "h")
 	.parseSync();
 
-const masscan = new Masscan(process.env.MASSCAN_PATH);
-const database = new Supabase(
+/* ------------------------------------------- */
+/*	  EDIT THIS FIELD TO MATCH YOUR DATABASE   */
+/* ------------------------------------------- */
+const database: AbstractDatabase = new Supabase(
 	process.env.SUPABASE_URL!,
 	process.env.SUPABASE_KEY!
 );
+// Add your own database by extending AbstractDatabase
 
 function print(msg: string) {
 	if (argv.verbose) {
@@ -149,6 +153,8 @@ async function onServerFound(data: ServerData) {
 		});
 	}
 }
+
+const masscan = new Masscan(process.env.MASSCAN_PATH);
 
 masscan.on("found", async (ip: string, ports: number) => {
 	await getStatus(ip, 25565, { timeout: 5000 })
