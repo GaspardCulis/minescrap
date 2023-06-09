@@ -6,8 +6,9 @@ A minecraft server finder inspired by Copenheimer.
 
 Features :
 ----------
-- ⚡️ Fast , uses masscan to scan IPs and  Redis to store found servers.
+- ⚡️ Fast , uses masscan to scan IPs in real-time.
 - 🌐 Express API to query found servers and players with a wide variety of filters.
+- 🗃️ Multi database support to store found servers.
 - 🎨 Fancy colored command line outputs.
 
 Installation & Setup :
@@ -19,15 +20,21 @@ cd minescrap
 npm i
 ```
 
-You'll need a Redis database with RedisJSON and RediSearch modules installed.
+### Setup database
 
-Edit and rename the [.env.example](.env.example) to .env to setup the Redis URL and credentials.
+Supported databases:
+- [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+- [![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/) (soon)
+
+First choose your DB by editing [src/search.ts](./src/search.ts?plain=1#L31), currently defaults to Supabase.
+
+Then edit the fields corresponding to your database in [.env.example](.env.example) and rename it to .env to setup your database credentials.
 
 Usage :
 -------
 ### Run a search :
 
-`node src/search.js`
+`npx ts-node src/search.ts -v`
 
 
 #### Command line arguments :
@@ -37,7 +44,7 @@ Usage :
 
 ### Run the api :
 
-`node src/api.js`
+`npx ts-node src/api.ts`
 
 #### Base url :
 `http://localhost:6969`
