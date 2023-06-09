@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Minescrap</h1>
+<h1>Minescrap</h1>
 
 ![MinescrapStats](https://dffgmelmvcyznupdsevg.supabase.co/functions/v1/stats?)
   
