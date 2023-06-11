@@ -108,7 +108,7 @@ async function onServerFound(data: ServerData) {
 		oldData.players.online =
 			online !== undefined ? online : oldData.players.online;
 
-		database.addServer({
+		database.updateServer({
 			ip: data.ip,
 			description:
 				typeof data.description == "string"
