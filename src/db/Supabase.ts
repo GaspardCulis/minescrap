@@ -40,7 +40,7 @@ export default class Supabase extends AbstractDatabase {
 
 	async serverExists(server_ip: string): Promise<boolean> {
 		return (
-			(await this.client.from("servers").select().eq("ip", server_ip)).count! >
+			(await this.client.from("servers").select("*", { count: 'exact', head: true }).eq("ip", server_ip)).count! >
 			0
 		);
 	}
@@ -135,7 +135,7 @@ export default class Supabase extends AbstractDatabase {
 
 	async playerIdExists(player_id: string): Promise<boolean> {
 		return (
-			(await this.client.from("players").select().eq("id", player_id)).count! >
+			(await this.client.from("players").select("*", { count: 'exact', head: true }).eq("id", player_id)).count! >
 			0
 		);
 	}
