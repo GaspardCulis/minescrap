@@ -62,22 +62,20 @@ async function onServerFound(data: ServerData) {
 		});
 		if (!player_exists) {
 			player.serversPlayed = [data.ip];
-			database.addPlayer(player).catch((e) => {
-				throw e;
-			});
+			database.addPlayer(player);
 		} else {
 			let player_data = await database.getPlayerById(player.id).catch((e) => {
 				throw e;
 			});
-			let servers_played = player_data.serversPlayed;
-			let server_index = servers_played.findIndex((s) => s == data.ip);
+			player_data.name = player.name;
+			let server_index = player_data.serversPlayed.findIndex((s) => s == data.ip);
 			if (server_index == -1) {
-				servers_played.push(data.ip);
+				player_data.serversPlayed.push(data.ip);
 				print(
 					`\t${clc.magenta.underline("[RARE]")} ${clc.yellowBright(
 						player.name
 					)} is a fancy boy he plays on ${clc.redBright(
-						servers_played.join(", ")
+						player_data.serversPlayed.join(", ")
 					)}`
 				);
 			}
