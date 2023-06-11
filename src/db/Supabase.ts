@@ -54,11 +54,13 @@ export default class Supabase extends AbstractDatabase {
 	}
 
 	async getServerByIp(ip: string): Promise<ServerData> {
-		return await this.DBServerToLocal(
-			(
-				await this.client.from("servers").select().eq("ip", ip).single()
-			).data!
-		);
+		const result = await this.client.from("servers").select().eq("ip", ip).single();
+		if (result.error) {
+			throw result.error;
+		} else if (!result.data) {
+			throw Error(`Server ${ip} not found`);
+		}
+		return await this.DBServerToLocal(result.data);
 	}
 
 	async getServers(filters: {
@@ -141,10 +143,13 @@ export default class Supabase extends AbstractDatabase {
 	}
 
 	async getPlayerById(player_id: string): Promise<PlayerData> {
-		return this.DBPlayerToLocal(
-			(await this.client.from("players").select().eq("id", player_id).single())
-				.data!
-		);
+		const result = await this.client.from("players").select().eq("id", player_id).single();
+		if (result.error) {
+			throw result.error;
+		} else if (!result.data) {
+			throw Error(`Player ${player_id} not found`);
+		}
+		return this.DBPlayerToLocal(result.data);
 	}
 
 	async getPlayers(filters: {
