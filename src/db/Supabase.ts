@@ -35,7 +35,7 @@ export default class Supabase extends AbstractDatabase {
 			online_count: data.players.online,
 			players: data.players.sample.map((p) => p.id),
 			last_time_online: new Date().toISOString(),
-		});
+		}).eq("ip", data.ip);
 	}
 
 	async serverExists(server_ip: string): Promise<boolean> {
@@ -125,12 +125,12 @@ export default class Supabase extends AbstractDatabase {
 	}
 
 	async updatePlayer(data: PlayerData): Promise<void> {
-		await this.client.from("players").insert({
+		await this.client.from("players").update({
 			id: data.id,
 			name: data.name,
 			servers_played: data.serversPlayed,
 			last_time_online: new Date().toISOString(),
-		});
+		}).eq("id", data.id);
 	}
 
 	async playerIdExists(player_id: string): Promise<boolean> {
