@@ -173,6 +173,7 @@ masscan.on("found", async (ip: string, ports: number) => {
 				),
 				players: response.players as any,
 			}).catch((e) => {
+				console.error(e);
 				throw e;
 			});
 		})
