@@ -10,11 +10,9 @@
   "author": "GaspardCulis",
   "license": "ISC",
   "dependencies": {
-    "@fauna-labs/fauna-schema-migrate": "^2.2.1",
     "@redis/json": "^1.0.4",
     "@supabase/supabase-js": "^2.24.0",
     "cli-color": "^2.0.3",
-    "cli-progress": "^3.11.1",
     "express": "^4.18.1",
     "mc-server-status": "^2.0.2",
     "node-masscan": "^1.1.2",
