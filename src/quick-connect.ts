@@ -1,73 +1,117 @@
-import mp from "minecraft-protocol";
-import Supabase from "./db/Supabase";
+import mp, { ClientOptions } from "minecraft-protocol";
+import { Database } from "./types/supabase";
+import { SupabaseClient } from "@supabase/supabase-js";
+const { createClient } = require('@supabase/supabase-js')
+
 
 require("dotenv").config();
 
-type ConnectResult = "success" | "whitelist" | "crack" | "unknown"
+type ConnectResult = "success" | "whitelist" | "crack" | "forge" | "unknown";
 
-/*
-const onlineClient = mp.createClient({
-    "username": process.env.MC_USERNAME!,
-    "password": process.env.MC_PASSWORD!,
-    "auth": "microsoft"
-})*/
+type ServerParamsEstimation = {
+    online_mode: boolean | null,
+    whitelist: boolean | null,
+    modded: boolean | null
+}
 
-export default function quickConnect(ip: string, port = 25565): Promise<ConnectResult> {
+let session: ClientOptions["session"] = undefined;
+
+export function connectSession(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        const onlineClient = mp.createClient({
+            "username": process.env.MC_USERNAME!,
+            "auth": "microsoft",
+            connect: () => {}
+        });
+
+        onlineClient.on("session", (s) => {
+            session = s;
+            resolve();
+        });
+
+        onlineClient.on("error", (e) => {
+            reject(e);
+        })
+    });
+}
+
+function getConnectResult(client: mp.Client, timeout = 5000): Promise<ConnectResult> {
     return new Promise<ConnectResult>((resolve, reject) => {
-        try {
-            const offlineClient = mp.createClient({
-                "username": process.env.MC_OFFLINE_USERNAME || "minescrap",
-                host: ip,
-                port: port
-            });
-            
-            offlineClient.on("packet", (data, meta) => {
-                console.log("Packet: ", meta);
-                if (meta.name == "disconnect" && meta.state == "login") {
-                    if (data.reason.includes("not_whitelisted")) {
-                        resolve("whitelist");
-                    } else if (data.reason.includes("unverified_username")) {
-                        resolve("crack");
-                    }
-                } else if (meta.name == "success" && meta.state == "login") {
-                    offlineClient.end();
-                    resolve("success");
-                } else if (meta.name == "kick_disconnect" && meta.state == "play") {
+        client.on("packet", (data, meta) => {
+            if (meta.name == "disconnect" && meta.state == "login") {
+                console.log(meta, data);
+                if (data.reason.includes("whitelisted")) {
+                    resolve("whitelist");
+                } else if (data.reason.includes("unverified_username")) {
+                    resolve("crack");
+                } else if (data.reason.includes(" mods ")) {
+                    resolve("forge");
+                } else {
                     resolve("unknown");
                 }
-            });
-
-            offlineClient.on("error", (error) => {
-                console.error(error);
+            } else if (meta.name == "success" && meta.state == "login") {
+                resolve("success");
+            } else if (meta.name == "kick_disconnect" && meta.state == "play") {
                 resolve("unknown");
-            });
+            }
+        });
 
-            offlineClient.on("end", (reason) => {
-                console.warn("Ended: "+reason);
-            });
-
-            offlineClient.on("raw", (buffer) => {
-                console.log("Raw");
-            })
-        } catch {
+        client.on("error", (error) => {
+            //console.error(error);
             resolve("unknown");
-        }
-    });
+        });
+
+        setTimeout(() => {
+            resolve("unknown");
+        }, timeout);
+    })
 }
 
-const database = new Supabase(
-	process.env.SUPABASE_URL!,
-	process.env.SUPABASE_KEY!
-);
-async function main() {
-    const servers = await database.getServers({
-        max_results: 69
+export async function quickConnect(ip: string, port = 25565): Promise<ServerParamsEstimation> {
+    const out: ServerParamsEstimation = {
+        whitelist: null,
+        online_mode: null,
+        modded: null
+    } 
+
+    const onlineClient = mp.createClient({
+        "username": process.env.MC_USERNAME!,
+        "auth": "microsoft",
+        "session": session,
+        host: ip,
+        port: port,
+        closeTimeout: 10 * 1000, 
+        keepAlive: false
     });
 
-    for (const server of servers) {
-        const t0 = Date.now();
-        console.log(`Server ${server.ip} is ${await quickConnect(server.ip)} (took ${Date.now() - t0}ms)`);
+    let result = await getConnectResult(onlineClient);
+
+    onlineClient.end("quit");
+
+    if (result == "success" || result == "whitelist") {
+        out.whitelist = result == "whitelist";
+        out.online_mode = result == "success" ? true : null;
+        out.modded = false;
+
+        await new Promise(resolve => setTimeout(resolve, 5000));
+
+        const offlineClient = mp.createClient({
+            "username": process.env.MC_OFFLINE_USERNAME || "minescrap",
+            host: ip,
+            port: port,
+            closeTimeout: 10 * 1000, 
+            keepAlive: false
+        });
+        
+        result = await getConnectResult(offlineClient);
+
+        offlineClient.end("quit");
+        
+        out.online_mode = result == "crack" ? true : (result == "success" ? false : null);
+    } else if (result == "forge") {
+        out.modded = true;
     }
-}
 
-main();
+    return out;
+
+}

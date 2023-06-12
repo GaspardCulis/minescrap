@@ -5,7 +5,6 @@ import clc from "cli-color";
 import Supabase from "./db/Supabase";
 import { exit } from "yargs";
 import { ServerData } from "./types/database";
-import { response } from "express";
 import AbstractDatabase from "./db/AstractDatabase";
 
 require("dotenv").config();
