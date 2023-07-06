@@ -61,7 +61,9 @@ async function onServerFound(data: ServerData) {
 		});
 		if (!player_exists) {
 			player.serversPlayed = [data.ip];
-			database.addPlayer(player);
+			database.addPlayer(player).catch((e) => {
+				throw e;
+			});
 		} else {
 			let player_data = await database.getPlayerById(player.id).catch((e) => {
 				throw e;
@@ -125,6 +127,8 @@ async function onServerFound(data: ServerData) {
 			players: oldData.players,
 			discovered: new Date(),
 			lastTimeOnline: new Date(),
+		}).catch((e) => {
+			throw e;
 		});
 	} else {
 		database.addServer({
@@ -147,6 +151,8 @@ async function onServerFound(data: ServerData) {
 			},
 			discovered: new Date(),
 			lastTimeOnline: new Date(),
+		}).catch((e) => {
+			throw e;
 		});
 	}
 }

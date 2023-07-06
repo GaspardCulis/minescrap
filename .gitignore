@@ -4,3 +4,4 @@ get_DB.bat
 .env
 paused.conf
 dist/
+data/
