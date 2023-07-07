@@ -60,7 +60,7 @@ export default class Supabase extends AbstractDatabase {
 		} else if (!result.data) {
 			throw Error(`Server ${ip} not found`);
 		}
-		return await this.DBServerToLocal(result.data);
+		return this.DBServerToLocal(result.data);
 	}
 
 	async getServers(filters: {
@@ -187,9 +187,14 @@ export default class Supabase extends AbstractDatabase {
 			discovered: new Date(data.discovered),
 			lastTimeOnline: new Date(data.last_time_online),
 			players: {
-				sample: await Promise.all(
-					data.players.map((p) => this.getPlayerById(p))
-				),
+				sample: (await Promise.all(
+					data.players.map((p) => this.getPlayerById(p).catch((e) => {
+						console.log(`Player ${p} not found`);
+						console.error(e);
+						return null;
+					}
+					))
+				)).filter((p) => p) as PlayerData[],
 				online: data.online_count || undefined,
 				max: data.max_players || undefined,
 			},
