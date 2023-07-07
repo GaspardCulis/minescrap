@@ -72,13 +72,15 @@ async function onServerFound(data: ServerData) {
 			let server_index = player_data.serversPlayed.findIndex((s) => s == data.ip);
 			if (server_index == -1) {
 				player_data.serversPlayed.push(data.ip);
-				print(
-					`\t${clc.magenta.underline("[RARE]")} ${clc.yellowBright(
-						player.name
-					)} is a fancy boy he plays on ${clc.redBright(
-						player_data.serversPlayed.join(", ")
-					)}`
-				);
+				if (player.name != "Anonymous Player") {
+					print(
+						`\t${clc.magenta.underline("[RARE]")} ${clc.yellowBright(
+							player.name
+						)} is a fancy boy he plays on ${clc.redBright(
+							player_data.serversPlayed.join(", ")
+						)}`
+					);
+				}
 			}
 			database.updatePlayer(player_data).catch((e) => {
 				throw e;
