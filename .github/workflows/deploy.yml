@@ -23,7 +23,7 @@ jobs:
       LOL: ${{ secrets.LOL }}
     steps:
       - name: Build with Astro
-        run: echo "Build complete $SUPABASE_URL $SUPABASE_ANON_KEY"
+        run: echo "Build complete $SUPABASE_URL $SUPABASE_ANON_KEY $LOL"
       - name: Checkout your repository using git
         uses: actions/checkout@v3
       - name: Install, build, and upload your site
