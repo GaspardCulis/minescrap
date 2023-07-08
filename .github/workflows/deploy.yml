@@ -16,6 +16,9 @@ permissions:
 
 jobs:
   build:
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout your repository using git
