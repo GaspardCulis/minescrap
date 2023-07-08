@@ -5,5 +5,6 @@ import svelte from "@astrojs/svelte";
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://minescrap.github.io',
   integrations: [tailwind(), svelte()]
 });
