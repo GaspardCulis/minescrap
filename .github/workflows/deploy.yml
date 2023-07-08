@@ -20,6 +20,7 @@ jobs:
     env:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      LOL: ${{ secrets.LOL }}
     steps:
       - name: Build with Astro
         run: echo "Build complete $SUPABASE_URL $SUPABASE_ANON_KEY"
