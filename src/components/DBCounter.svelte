@@ -91,6 +91,7 @@
     }
     50% {
       transform: translateY(-100px);
+      animation-timing-function: steps(1);
     }
     51% {
       transform: translateY(100px);
