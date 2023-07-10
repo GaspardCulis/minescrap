@@ -163,7 +163,7 @@ const masscan = new Masscan(process.env.MASSCAN_PATH);
 
 masscan.on("found", async (ip: string, ports: number) => {
 	await getStatus(ip, 25565, { timeout: 5000 })
-		.then((response) => {
+		.then((response: any) => {
 			print(
 				`Found : ${clc.redBright(ip)} on port ${ports}   |   rate=${
 					masscan.rate
@@ -184,7 +184,7 @@ masscan.on("found", async (ip: string, ports: number) => {
 				throw e;
 			});
 		})
-		.catch((reason) => {});
+		.catch((reason: any) => {});
 });
 
 masscan.on("error", (msg: string) => {

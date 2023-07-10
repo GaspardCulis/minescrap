@@ -60,7 +60,10 @@ export default class Supabase extends AbstractDatabase {
 		} else if (!result.data) {
 			throw Error(`Server ${ip} not found`);
 		}
-		return this.DBServerToLocal(result.data);
+		return await this.DBServerToLocal(result.data).catch((e) => {
+			console.error(`Failed to call  DBServerToLocal on server ${ip}`)
+			throw e;
+		});
 	}
 
 	async getServers(filters: {
@@ -115,7 +118,10 @@ export default class Supabase extends AbstractDatabase {
 				break;
 		}
 
-		return await Promise.all(results.map((r) => this.DBServerToLocal(r)));
+		return await Promise.all(results.map((r) => this.DBServerToLocal(r).catch((e) => {
+			console.error(`Failed to call  DBServerToLocal on server ${r.ip}`)
+			throw e;
+		})));
 	}
 
 	async addPlayer(data: PlayerData): Promise<void> {
@@ -190,8 +196,7 @@ export default class Supabase extends AbstractDatabase {
 				sample: (await Promise.all(
 					data.players.map((p) => this.getPlayerById(p).catch((e) => {
 						console.log(`Player ${p} not found`);
-						console.error(e);
-						return null;
+						throw e;
 					}
 					))
 				)).filter((p) => p) as PlayerData[],
