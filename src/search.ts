@@ -4,7 +4,7 @@ import yargs from "yargs/yargs";
 import clc from "cli-color";
 import Supabase from "./db/Supabase";
 import { exit } from "yargs";
-import { ServerData } from "./types/database";
+import { PlayerData, ServerData } from "./types/database";
 import AbstractDatabase from "./db/AstractDatabase";
 
 require("dotenv").config();
@@ -39,6 +39,39 @@ function print(msg: string) {
 	}
 }
 
+async function processPlayer(ip: string, player: PlayerData) {
+	let player_exists = await database.playerIdExists(player.id).catch((e) => {
+		throw e;
+	});
+	if (!player_exists) {
+		player.serversPlayed = [ip];
+		database.addPlayer(player).catch((e) => {
+			throw e;
+		});
+	} else {
+		let player_data = await database.getPlayerById(player.id).catch((e) => {
+			throw e;
+		});
+		player_data.name = player.name;
+		let server_index = player_data.serversPlayed.findIndex((s) => s == ip);
+		if (server_index == -1) {
+			player_data.serversPlayed.push(ip);
+			if (player.name != "Anonymous Player") {
+				print(
+					`\t${clc.magenta.underline("[RARE]")} ${clc.yellowBright(
+						player.name
+					)} is a fancy boy he plays on ${clc.redBright(
+						player_data.serversPlayed.join(", ")
+					)}`
+				);
+			}
+		}
+		database.updatePlayer(player_data).catch((e) => {
+			throw e;
+		});
+	}
+}
+
 async function onServerFound(data: ServerData) {
 	let server_exists = await database.serverExists(data.ip).catch((e) => {
 		throw e;
@@ -55,37 +88,8 @@ async function onServerFound(data: ServerData) {
 				players.map((p) => clc.yellowBright((p || {}).name)).join(", ")
 		);
 	}
-	players.forEach(async (player) => {
-		let player_exists = await database.playerIdExists(player.id).catch((e) => {
-			throw e;
-		});
-		if (!player_exists) {
-			player.serversPlayed = [data.ip];
-			database.addPlayer(player).catch((e) => {
-				throw e;
-			});
-		} else {
-			let player_data = await database.getPlayerById(player.id).catch((e) => {
-				throw e;
-			});
-			player_data.name = player.name;
-			let server_index = player_data.serversPlayed.findIndex((s) => s == data.ip);
-			if (server_index == -1) {
-				player_data.serversPlayed.push(data.ip);
-				if (player.name != "Anonymous Player") {
-					print(
-						`\t${clc.magenta.underline("[RARE]")} ${clc.yellowBright(
-							player.name
-						)} is a fancy boy he plays on ${clc.redBright(
-							player_data.serversPlayed.join(", ")
-						)}`
-					);
-				}
-			}
-			database.updatePlayer(player_data).catch((e) => {
-				throw e;
-			});
-		}
+	await Promise.all(players.map((p) => processPlayer(data.ip, p))).catch((e) => {
+		throw e;
 	});
 
 	// Then update server data
