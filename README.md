@@ -29,7 +29,7 @@ npm i
 
 Supported databases:
 - [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
-- [![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/) (soon)
+- [![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/) (soonish)
 
 First choose your DB by editing [src/search.ts](./src/search.ts?plain=1#L31), currently defaults to Supabase.
 
@@ -55,3 +55,7 @@ Usage :
 `http://localhost:6969`
 
 All of the API routes are given in the base URL page.
+
+### Web interface
+
+I made a simple web app that displays the found servers and players count in real time thanks to Supabase real time features.
