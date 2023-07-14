@@ -54,4 +54,8 @@ Usage :
 #### Base url :
 `http://localhost:6969`
 
-All of the API routes are given in the base URL page.
+All of the API routes are given in the base URL page.### Web interface
+
+### Web interface
+
+I made a simple web app that displays the found servers and players count in real time. I plan to add a feature to search for servers.
