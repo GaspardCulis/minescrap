@@ -60,10 +60,11 @@ export default class Supabase extends AbstractDatabase {
 		} else if (!result.data) {
 			throw Error(`Server ${ip} not found`);
 		}
-		return await this.DBServerToLocal(result.data).catch((e) => {
-			console.error(`Failed to call  DBServerToLocal on server ${ip}`)
-			throw e;
-		});
+		let server = await this.DBServerToLocal(result.data).catch((e) => null);
+		if (!server) {
+			throw Error(`Failed to call DBServerToLocal on server ${ip}`);
+		}
+		return server;
 	}
 
 	async getServers(filters: {

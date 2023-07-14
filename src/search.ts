@@ -97,6 +97,7 @@ async function onServerFound(data: ServerData) {
 	if (server_exists) {
 		print("\t╘═► Server already exists, updating lastTimeOnline");
 		let oldData = await database.getServerByIp(data.ip).catch((e) => {
+			console.error("Error while getting server data: ", e);
 			throw e;
 		});
 		for (let player of players) {
@@ -184,7 +185,7 @@ masscan.on("found", async (ip: string, ports: number) => {
 				),
 				players: response.players as any,
 			}).catch((e) => {
-				console.error(e);
+				console.error("Failed to process server data: ", e);
 				throw e;
 			});
 		})
