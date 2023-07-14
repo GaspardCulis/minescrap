@@ -21,7 +21,7 @@ export function connectSession(): Promise<void> {
         const onlineClient = mp.createClient({
             "username": process.env.MC_USERNAME!,
             "auth": "microsoft",
-            connect: () => {}
+            connect: () => { }
         });
 
         onlineClient.on("session", (s) => {
@@ -39,7 +39,6 @@ function getConnectResult(client: mp.Client, timeout = 5000): Promise<ConnectRes
     return new Promise<ConnectResult>((resolve, reject) => {
         client.on("packet", (data, meta) => {
             if (meta.name == "disconnect" && meta.state == "login") {
-                console.log(meta, data);
                 if (data.reason.includes("whitelisted")) {
                     resolve("whitelist");
                 } else if (data.reason.includes("unverified_username")) {
@@ -72,7 +71,7 @@ export async function quickConnect(ip: string, port = 25565): Promise<ServerPara
         whitelist: null,
         online_mode: null,
         modded: null
-    } 
+    }
 
     const onlineClient = mp.createClient({
         "username": process.env.MC_USERNAME!,
@@ -80,7 +79,7 @@ export async function quickConnect(ip: string, port = 25565): Promise<ServerPara
         "session": session,
         host: ip,
         port: port,
-        closeTimeout: 10 * 1000, 
+        closeTimeout: 10 * 1000,
         keepAlive: false
     });
 
@@ -99,14 +98,14 @@ export async function quickConnect(ip: string, port = 25565): Promise<ServerPara
             "username": process.env.MC_OFFLINE_USERNAME || "minescrap",
             host: ip,
             port: port,
-            closeTimeout: 10 * 1000, 
+            closeTimeout: 10 * 1000,
             keepAlive: false
         });
-        
+
         result = await getConnectResult(offlineClient);
 
         offlineClient.end("quit");
-        
+
         out.online_mode = result == "crack" ? true : (result == "success" ? false : null);
     } else if (result == "forge") {
         out.modded = true;
