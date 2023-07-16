@@ -17,7 +17,7 @@ async function* iterateServerBatch(batch_size: number) {
 
     for (let i = 0; i < server_count; i += batch_size) {
         yield await client
-            .from("servers")
+            .from("random_servers")
             .select("*")
             .range(i, i + batch_size - 1);
     }
@@ -31,7 +31,7 @@ async function main() {
             batch.data!.map(async (server) => {
                 return {
                     ip: server.ip,
-                    ...await quickConnect(server.ip)
+                    ...await quickConnect(server.ip!)
                 };
             })
         );
