@@ -3,7 +3,6 @@ import { getStatus } from "mc-server-status";
 import yargs from "yargs/yargs";
 import clc from "cli-color";
 import Supabase from "./db/Supabase";
-import { exit } from "yargs";
 import { PlayerData, ServerData } from "./types/database";
 import AbstractDatabase from "./db/AstractDatabase";
 
@@ -196,7 +195,7 @@ masscan.on("error", (msg: string) => {
 
 masscan.on("complete", () => {
 	console.log(clc.greenBright("Congrats, you scanned the entire internet !"));
-	exit(0, new Error("scan_complete"));
+	process.exit(0);
 });
 
 masscan.start(
