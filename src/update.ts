@@ -25,6 +25,8 @@ const argv = yargs(process.argv.slice(2))
 const BATCH_SIZE = argv.batchSize;
 const VERBOSE = argv.verbose;
 
+console.log(`Running with batch size ${BATCH_SIZE} and verbose ${VERBOSE}`);
+
 const client = createClient<Database>(
     process.env.SUPABASE_URL!,
     process.env.SUPABASE_KEY!,
