@@ -85,7 +85,7 @@ async function onServerFound(data: ServerData) {
 	if (players.length > 0) {
 		print(
 			"\t╘═► Players online: " +
-				players.map((p) => clc.yellowBright((p || {}).name)).join(", ")
+			players.map((p) => clc.yellowBright((p || {}).name)).join(", ")
 		);
 	}
 	await Promise.all(players.map((p) => processPlayer(data.ip, p))).catch((e) => {
@@ -170,8 +170,7 @@ masscan.on("found", async (ip: string, ports: number) => {
 	await getStatus(ip, 25565, { timeout: 5000 })
 		.then((response: any) => {
 			print(
-				`Found : ${clc.redBright(ip)} on port ${ports}   |   rate=${
-					masscan.rate
+				`Found : ${clc.redBright(ip)} on port ${ports}   |   rate=${masscan.rate
 				} percentage=${masscan.percentage}%`
 			);
 			onServerFound({
@@ -186,10 +185,9 @@ masscan.on("found", async (ip: string, ports: number) => {
 				players: response.players as any,
 			}).catch((e) => {
 				console.error("Failed to process server data: ", e);
-				throw e;
 			});
 		})
-		.catch((reason: any) => {});
+		.catch((reason: any) => { });
 });
 
 masscan.on("error", (msg: string) => {
