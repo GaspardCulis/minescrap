@@ -8,7 +8,11 @@ export default class Supabase extends AbstractDatabase {
 
 	constructor(url: string, key: string) {
 		super();
-		this.client = createClient<Database>(url, key);
+		this.client = createClient<Database>(url, key, {
+			auth: {
+				persistSession: false,
+			}
+		});
 	}
 
 	async addServer(data: ServerData): Promise<void> {

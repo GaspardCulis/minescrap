@@ -27,7 +27,12 @@ const VERBOSE = argv.verbose;
 
 const client = createClient<Database>(
     process.env.SUPABASE_URL!,
-    process.env.SUPABASE_KEY!
+    process.env.SUPABASE_KEY!,
+    {
+        auth: {
+            persistSession: false,
+        }
+    }
 );
 
 async function* iterateServerBatch(batch_size: number) {
