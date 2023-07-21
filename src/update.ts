@@ -68,6 +68,7 @@ async function main() {
             results.map(async (result) => {
                 // Some logging
                 if (result.online_mode !== null && !result.whitelist && VERBOSE) {
+                    connect_count += 1;
                     console.log(`[${connect_count}] Managed to connect to ${result.ip} with online mode ${result.online_mode}`);
                 }
                 // Update the database
@@ -80,7 +81,6 @@ async function main() {
                         last_time_online: new Date().toISOString()
                     })
                     .eq("ip", result.ip);
-                connect_count += 1;
             })
         );
     }
