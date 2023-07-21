@@ -51,6 +51,7 @@ async function* iterateServerBatch(batch_size: number) {
 }
 
 async function main() {
+    let total_tries = 0;
     let connect_count = 0;
     await connectSession();
     for await (const batch of iterateServerBatch(BATCH_SIZE)) {
@@ -66,10 +67,11 @@ async function main() {
         // Update the database with the results
         await Promise.all(
             results.map(async (result) => {
+                total_tries += 1;
                 // Some logging
                 if (result.online_mode !== null && !result.whitelist && VERBOSE) {
                     connect_count += 1;
-                    console.log(`[${connect_count}] Managed to connect to ${result.ip} with online mode ${result.online_mode}`);
+                    console.log(`[${connect_count}/${total_tries}] Managed to connect to ${result.ip} with online mode ${result.online_mode}`);
                 }
                 // Update the database
                 await client
