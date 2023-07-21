@@ -1,0 +1,3 @@
+[submodule "botcraft/Botcraft"]
+	path = botcraft/Botcraft
+	url = https://github.com/adepierre/Botcraft
