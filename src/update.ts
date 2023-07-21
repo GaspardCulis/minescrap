@@ -51,6 +51,7 @@ async function* iterateServerBatch(batch_size: number) {
 }
 
 async function main() {
+    let connect_count = 0;
     await connectSession();
     for await (const batch of iterateServerBatch(BATCH_SIZE)) {
         // Run quick connect on each server in the batch
@@ -67,7 +68,7 @@ async function main() {
             results.map(async (result) => {
                 // Some logging
                 if (result.online_mode !== null && !result.whitelist && VERBOSE) {
-                    console.log(`Managed to connect to ${result.ip} with online mode ${result.online_mode}`);
+                    console.log(`[${connect_count}] Managed to connect to ${result.ip} with online mode ${result.online_mode}`);
                 }
                 // Update the database
                 await client
@@ -79,6 +80,7 @@ async function main() {
                         last_time_online: new Date().toISOString()
                     })
                     .eq("ip", result.ip);
+                connect_count += 1;
             })
         );
     }
