@@ -54,7 +54,7 @@ Usage :
 #### Base url :
 `http://localhost:6969`
 
-All of the API routes are given in the base URL page.### Web interface
+All of the API routes are given in the base URL page.
 
 ### Web interface
 
